@@ -1,0 +1,14 @@
+###
+GET http://localhost:8000/api/v1/sekolah
+
+###
+POST http://localhost:8000/api/v1/sekolah
+Content-Type: application/json
+
+{
+  "name": "UPTD SMPN 39 Sinjai",
+  "opt": {
+    "logo": null,
+    "kop": null
+  }
+}

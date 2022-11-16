@@ -1,0 +1,29 @@
+GET http://localhost:8000/api/v1/users
+# Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOjEsIl9uYW1lIjoiQXNkYXIgU3lhbSIsIl9lbWFpbCI6ImFzZGFyLmJpbnN5YW1AZ21haWwuY29tIiwiaWF0IjoxNjY4NDAzNTAwfQ.inColOBf3jO2BosLPOAis4f_jUTolaBmkPxfZgQFpzA
+
+###
+GET http://localhost:8000/api/v1/check
+# Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOjEsIl9uYW1lIjoiQXNkYXIgU3lhbSIsIl9lbWFpbCI6ImFzZGFyLmJpbnN5YW1AZ21haWwuY29tIiwiaWF0IjoxNjY4NDAzNTAwfQ.inColOBf3jO2BosLPOAis4f_jUTolaBmkPxfZgQFpzA
+
+###
+POST http://localhost:8000/api/v1/login
+Content-Type: application/json
+
+{
+  "email": "maudy@gmail.com",
+  "password": "password"
+}
+
+###
+POST http://localhost:8000/api/v1/register
+Content-Type: application/json
+
+{
+  "sekolah": "UPTD SMPN 39 Sinjai",
+  "name": "Maudy Istiqamah",
+  "email": "maudy@gmail.com",
+  "password": "password"
+}
+
+###
+POST http://localhost:8000/api/v1/logout

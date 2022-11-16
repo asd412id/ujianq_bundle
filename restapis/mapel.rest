@@ -1,0 +1,26 @@
+###
+GET http://localhost:8000/api/v1/mapels
+
+###
+POST http://localhost:8000/api/v1/mapels
+Content-Type: application/json
+
+{
+  "name":"Bahasa Inggris",
+  "desc": "Kelas VII"
+}
+
+###
+GET http://localhost:8000/api/v1/mapels/918e325a-5ecc-4808-bbed-b7528dc7286f
+
+###
+PUT http://localhost:8000/api/v1/mapels/918e325a-5ecc-4808-bbed-b7528dc7286f
+Content-Type: application/json
+
+{
+  "name":"B. Inggris",
+  "desc": "Kelas VIII"
+}
+
+###
+DELETE  http://localhost:8000/api/v1/mapels/918e325a-5ecc-4808-bbed-b7528dc7286f
