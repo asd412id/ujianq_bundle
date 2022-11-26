@@ -4,6 +4,7 @@ import db from '../configs/Database.js';
 import Sekolah from './SekolahModel.js';
 import dotenv from 'dotenv';
 import Jadwal from './JadwalModel.js';
+import Mapel from './MapelModel.js';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ const User = db.define('users', {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true
   },
   password: {
     type: DataTypes.STRING,
@@ -52,6 +54,8 @@ const User = db.define('users', {
 Sekolah.hasMany(User, {
   onDelete: 'CASCADE'
 });
+User.belongsToMany(Mapel, { through: 'User_Mapel', timestamps: false });
+Mapel.belongsToMany(User, { through: 'User_Mapel', timestamps: false });
 User.belongsTo(Sekolah);
 User.belongsToMany(Jadwal, { through: 'User_Jadwal', timestamps: false });
 Jadwal.belongsToMany(User, { through: 'User_Jadwal', timestamps: false });

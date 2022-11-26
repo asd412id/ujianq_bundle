@@ -3,12 +3,17 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import bcryptjs from "bcryptjs";
 import Sekolah from "../models/SekolahModel.js";
+import { Sequelize } from "sequelize";
 
 dotenv.config();
 const { compareSync } = bcryptjs;
 
 export const UserRegister = async (req, res) => {
   const { sekolah, name, email, password } = req.body;
+  if (!name || !email) {
+    return res.status(406).json({ message: 'Data tidak lengkap' });
+  }
+
   const datauser = await User.findOne({ where: { email } });
   if (datauser) {
     return res.status(406).json({ message: `Email "${email}" sudah terdaftar sebelumnya` });
@@ -71,6 +76,48 @@ export const UserLogout = async (req, res) => {
 
 export const checkLogin = async (req, res) => {
   return res.status(200).json(req.user);
+}
+
+export const updateAccount = async (req, res) => {
+  const { name, email, password, confirm_password } = req.body;
+  if (!name || !email) {
+    return res.status(406).json({ message: 'Data tidak lengkap' });
+  }
+  const datauser = await User.findOne({
+    where: {
+      email,
+      id: {
+        [Sequelize.Op.ne]: req.user.id
+      }
+    }
+  });
+
+  if (datauser) {
+    return res.status(406).json({ message: `Email "${email}" sudah terdaftar sebelumnya` });
+  }
+
+  try {
+    const data = {};
+    data['name'] = name;
+    data['email'] = email;
+    if (password) {
+      if (password !== confirm_password) {
+        return res.status(406).json({ message: `Perulangan password tidak sesuai` });
+      }
+      data['password'] = password;
+    }
+
+    const update = await User.update(data, { where: { id: req.user.id } });
+    if (update[0] > 0) {
+      return res.status(201).json({
+        message: 'Data berhasil disimpan',
+        data: await User.scope('hidePassword').findByPk(req.user.id)
+      });
+    }
+    return res.status(500).json({ message: 'Data gagal disimpan' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Data gagal disimpan' });
+  }
 }
 
 export const getUsers = async (req, res) => {

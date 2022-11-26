@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import db from '../configs/Database.js';
 import PesertaLogin from './PesertaLoginModel.js';
+import Soal from './SoalModel.js';
 
 const { DataTypes } = Sequelize;
 
@@ -44,6 +45,8 @@ Jadwal.hasMany(PesertaLogin, {
   onDelete: 'CASCADE'
 });
 PesertaLogin.belongsTo(Jadwal);
+Jadwal.belongsToMany(Soal, { through: 'Jadwal_Soal', timestamps: false });
+Soal.belongsToMany(Jadwal, { through: 'Jadwal_Soal', timestamps: false });
 
 export default Jadwal;
 

@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
 import db from '../configs/Database.js';
 import PesertaTest from './PesertaTestModel.js';
-import Soal from './SoalModel.js';
 
 const { DataTypes } = Sequelize;
 
@@ -11,10 +10,6 @@ const PesertaLogin = db.define('peserta_logins', {
     defaultValue: DataTypes.UUIDV4,
     unique: true,
     primaryKey: true
-  },
-  soal: {
-    type: DataTypes.JSON,
-    allowNull: false,
   },
   start: {
     type: DataTypes.DATE

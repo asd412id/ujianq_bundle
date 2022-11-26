@@ -1,32 +1,54 @@
-import { Op } from "sequelize";
+import { existsSync, rmSync } from "fs";
+import { col, fn, Op } from "sequelize";
 import Mapel from "../models/MapelModel.js";
+import SoalItem from "../models/SoalItemModel.js";
+import Soal from "../models/SoalModel.js";
 import { getPagination, getPagingData } from "../utils/Pagination.js";
 
-export const getMapels = async (req, res) => {
+export const getSoals = async (req, res) => {
   const { page, size, search } = req.query;
   const { limit, offset } = getPagination(page, size);
 
   try {
-    const datas = await Mapel.findAndCountAll({
+    const datas = await Soal.findAndCountAll({
+      subQuery: false,
       where: {
         [Op.or]: [
           {
             name: {
               [Op.substring]: search
             }
-          }, {
+          },
+          {
             desc: {
               [Op.substring]: search
             }
           }
         ],
-        sekolahId: req.user.sekolahId
+        soalKategoryId: req.params.katid
       },
-      order: [
-        ['name', 'asc']
+      attributes: {
+        include: [
+          [fn('count', col('soal_items.id')), 'soal_count']
+        ]
+      },
+      include: [
+        {
+          model: SoalItem,
+          attributes: []
+        },
+        {
+          model: Mapel,
+          attributes: ['name']
+        }
       ],
+      order: [
+        ['createdAt', 'asc']
+      ],
+      distinct: true,
+      group: ['id'],
       limit: limit,
-      offset: offset,
+      offset: offset
     });
     return res.status(200).json(getPagingData(datas, page, size));
   } catch (error) {
@@ -34,12 +56,12 @@ export const getMapels = async (req, res) => {
   }
 }
 
-export const getMapel = async (req, res) => {
+export const getSoal = async (req, res) => {
   try {
-    const data = await Mapel.findOne({
+    const data = await Soal.findOne({
       where: {
         id: req.params.id,
-        sekolahId: req.user.sekolahId
+        soalKategoryId: req.params.katid
       }
     });
     return res.status(200).json(data);
@@ -49,21 +71,21 @@ export const getMapel = async (req, res) => {
 }
 
 export const store = async (req, res) => {
-  const { name, desc } = req.body;
-  if (!name) {
+  const { name, desc, mapelId } = req.body;
+  if (!name || !mapelId) {
     return sendStatus(res, 406, 'Data yang dikirim tidak lengkap');
   }
 
   try {
     if (req.params?.id) {
-      await Mapel.update({ name, desc }, {
+      await Soal.update({ name, desc, mapelId: mapelId }, {
         where: {
           id: req.params.id,
-          sekolahId: req.user.sekolahId
+          soalKategoryId: req.params.katid
         }
       });
     } else {
-      await Mapel.create({ name, desc, sekolahId: req.user.sekolahId });
+      await Soal.create({ name, desc, mapelId: mapelId, soalKategoryId: req.params.katid });
     }
     return sendStatus(res, 201, 'Data berhasil disimpan');
   } catch (error) {
@@ -73,10 +95,13 @@ export const store = async (req, res) => {
 
 export const destroy = async (req, res) => {
   try {
-    await Mapel.destroy({
+    if (existsSync(`${process.env.APP_ASSETS_PATH}/assets/${req.params.id}`)) {
+      rmSync(`${process.env.APP_ASSETS_PATH}/assets/${req.params.id}`, { recursive: true, force: true });
+    }
+    await Soal.destroy({
       where: {
         id: req.params.id,
-        sekolahId: req.user.sekolahId
+        soalKategoryId: req.params.katid
       }
     });
     return sendStatus(res, 202, 'Data berhasil dihapus');

@@ -6,12 +6,12 @@ dotenv.config();
 const db = new Sequelize(process.env.DB_DATABASE, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 3306,
-  dialect: process.env.DB_CONNECTION || 'mysql',
+  dialect: process.env.DB_CONNECTION || 'mariadb',
   dialectOptions: {
-    dateString: true,
     typeCast: true
   },
-  timezone: process.env.TIMEZONE || 'Asia/Makassar'
+  timezone: process.env.TIMEZONE || 'Asia/Makassar',
+  logging: false
 });
 
 export default db;

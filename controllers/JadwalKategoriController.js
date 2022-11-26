@@ -1,20 +1,23 @@
-import { Op } from "sequelize";
-import Mapel from "../models/MapelModel.js";
+import { col, fn, Op } from "sequelize";
+import JadwalKategori from "../models/JadwalKategoriModel.js";
+import Jadwal from "../models/JadwalModel.js";
 import { getPagination, getPagingData } from "../utils/Pagination.js";
 
-export const getMapels = async (req, res) => {
+export const getJadwalKategoris = async (req, res) => {
   const { page, size, search } = req.query;
   const { limit, offset } = getPagination(page, size);
 
   try {
-    const datas = await Mapel.findAndCountAll({
+    const datas = await JadwalKategori.findAndCountAll({
+      subQuery: false,
       where: {
         [Op.or]: [
           {
             name: {
               [Op.substring]: search
             }
-          }, {
+          },
+          {
             desc: {
               [Op.substring]: search
             }
@@ -22,11 +25,24 @@ export const getMapels = async (req, res) => {
         ],
         sekolahId: req.user.sekolahId
       },
-      order: [
-        ['name', 'asc']
+      attributes: {
+        include: [
+          [fn('count', col('jadwals.id')), 'jadwal_count']
+        ]
+      },
+      include: [
+        {
+          model: Jadwal,
+          attributes: []
+        }
       ],
+      order: [
+        ['createdAt', 'desc']
+      ],
+      group: ['id'],
       limit: limit,
       offset: offset,
+      distinct: true
     });
     return res.status(200).json(getPagingData(datas, page, size));
   } catch (error) {
@@ -34,9 +50,9 @@ export const getMapels = async (req, res) => {
   }
 }
 
-export const getMapel = async (req, res) => {
+export const getJadwalKategori = async (req, res) => {
   try {
-    const data = await Mapel.findOne({
+    const data = await JadwalKategori.findOne({
       where: {
         id: req.params.id,
         sekolahId: req.user.sekolahId
@@ -56,14 +72,14 @@ export const store = async (req, res) => {
 
   try {
     if (req.params?.id) {
-      await Mapel.update({ name, desc }, {
+      await JadwalKategori.update({ name, desc }, {
         where: {
           id: req.params.id,
           sekolahId: req.user.sekolahId
         }
       });
     } else {
-      await Mapel.create({ name, desc, sekolahId: req.user.sekolahId });
+      await JadwalKategori.create({ name, desc, sekolahId: req.user.sekolahId });
     }
     return sendStatus(res, 201, 'Data berhasil disimpan');
   } catch (error) {
@@ -73,7 +89,7 @@ export const store = async (req, res) => {
 
 export const destroy = async (req, res) => {
   try {
-    await Mapel.destroy({
+    await JadwalKategori.destroy({
       where: {
         id: req.params.id,
         sekolahId: req.user.sekolahId

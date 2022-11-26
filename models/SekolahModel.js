@@ -3,7 +3,7 @@ import db from '../configs/Database.js';
 import JadwalKategori from './JadwalKategoriModel.js';
 import Mapel from './MapelModel.js';
 import Peserta from './PesertaModel.js';
-import SoalKategori from './SoalKateogoriModel.js';
+import SoalKategori from './SoalKategoriModel.js';
 import Soal from './SoalModel.js';
 
 const { DataTypes } = Sequelize;
@@ -20,13 +20,7 @@ const Sekolah = db.define('sekolahs', {
     allowNull: false,
   },
   opt: {
-    type: DataTypes.JSON,
-    set(value) {
-      this.setDataValue('opt', JSON.stringify(value));
-    },
-    get() {
-      return JSON.parse(this.getDataValue('opt'));
-    }
+    type: DataTypes.JSON
   }
 });
 

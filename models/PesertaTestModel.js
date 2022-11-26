@@ -10,15 +10,20 @@ const PesertaTest = db.define('peserta_tests', {
     unique: true,
     primaryKey: true
   },
-  text: {
-    type: DataTypes.TEXT,
-    allowNull: false
-  },
   type: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(3),
     allowNull: false,
     defaultValue: 'PG',
     comment: 'PG, PGK, IS, E, BS, JD'
+  },
+  num: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1
+  },
+  text: {
+    type: DataTypes.TEXT,
+    allowNull: false,
   },
   bobot: {
     type: DataTypes.DOUBLE,

@@ -1,36 +1,30 @@
 import { Op } from "sequelize";
-import Peserta from "../models/PesertaModel.js";
+import User from "../models/UserModel.js";
 import { getPagination, getPagingData } from "../utils/Pagination.js";
 
-export const getPesertas = async (req, res) => {
+export const getPenilais = async (req, res) => {
   const { page, size, search } = req.query;
   const { limit, offset } = getPagination(page, size);
 
   try {
-    const datas = await Peserta.scope('hidePassword').findAndCountAll({
+    const datas = await User.scope('hidePassword').findAndCountAll({
       where: {
         [Op.or]: [
           {
             name: {
               [Op.substring]: search
             }
-          },
-          {
-            username: {
-              [Op.substring]: search
-            }
-          },
-          {
-            ruang: {
+          }, {
+            email: {
               [Op.substring]: search
             }
           }
         ],
+        role: 'PENILAI',
         sekolahId: req.user.sekolahId
       },
       order: [
-        ['name', 'asc'],
-        ['username', 'asc']
+        ['name', 'asc']
       ],
       limit: limit,
       offset: offset,
@@ -41,11 +35,12 @@ export const getPesertas = async (req, res) => {
   }
 }
 
-export const getPeserta = async (req, res) => {
+export const getPenilai = async (req, res) => {
   try {
-    const data = await Peserta.scope('hidePassword').findOne({
+    const data = await User.scope('hidePassword').findOne({
       where: {
         id: req.params.id,
+        role: 'PENILAI',
         sekolahId: req.user.sekolahId
       }
     });
@@ -56,58 +51,61 @@ export const getPeserta = async (req, res) => {
 }
 
 export const store = async (req, res) => {
-  const { name, username, password, ruang } = req.body;
+  const { name, email, password, confirm_password } = req.body;
 
   const data = {};
 
   try {
-    const checkEmail = await Peserta.findOne({
+    const checkEmail = await User.findOne({
       where: {
-        username,
+        email,
         id: {
           [Op.ne]: req.params?.id
         }
       }
     });
     if (checkEmail) {
-      return sendStatus(res, 406, `Email "${username}" sudah digunakan`);
+      return sendStatus(res, 406, `Email "${email}" sudah digunakan`);
     }
   } catch (error) {
     console.log(`Error: ${error.message}`);
   }
 
+  if (password !== confirm_password) {
+    return sendStatus(res, 406, 'Perulangan password tidak benar');
+  }
+
   try {
     if (req.params?.id) {
-      if (!name || !username) {
+      if (!name || !email) {
         return sendStatus(res, 406, 'Data yang dikirim tidak lengkap');
       }
 
       data.name = name;
-      data.username = username;
-      data.ruang = ruang;
+      data.email = email;
 
       if (password) {
         data.password = password;
       }
 
-      await Peserta.update(data, {
+      await User.update(data, {
         where: {
           id: req.params.id,
           sekolahId: req.user.sekolahId
         }
       });
     } else {
-      if (!name || !username || !password) {
+      if (!name || !email || !password) {
         return sendStatus(res, 406, 'Data yang dikirim tidak lengkap');
       }
 
       data.name = name;
-      data.username = username;
+      data.email = email;
       data.password = password;
-      data.ruang = ruang;
+      data.role = 'PENILAI';
       data.sekolahId = req.user.sekolahId;
 
-      await Peserta.create(data);
+      await User.create(data);
     }
 
     return sendStatus(res, 201, 'Data berhasil disimpan');
@@ -117,7 +115,7 @@ export const store = async (req, res) => {
 }
 
 export const destroy = async (req, res) => {
-  const destroy = await Peserta.destroy({
+  const destroy = await User.destroy({
     where: {
       id: req.params.id,
       sekolahId: req.user.sekolahId

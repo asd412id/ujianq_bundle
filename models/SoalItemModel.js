@@ -12,19 +12,19 @@ const SoalItem = db.define('soal_items', {
     primaryKey: true
   },
   type: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(3),
     allowNull: false,
     defaultValue: 'PG',
     comment: 'PG, PGK, IS, E, BS, JD'
-  },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
   },
   num: {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 1
+  },
+  text: {
+    type: DataTypes.TEXT,
+    allowNull: false,
   },
   bobot: {
     type: DataTypes.DOUBLE,
@@ -41,6 +41,9 @@ const SoalItem = db.define('soal_items', {
     type: DataTypes.JSON
   },
   labels: {
+    type: DataTypes.JSON
+  },
+  assets: {
     type: DataTypes.JSON
   },
   shuffle: {

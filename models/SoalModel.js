@@ -14,6 +14,9 @@ const Soal = db.define('soals', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  desc: {
+    type: DataTypes.TEXT
   }
 });
 

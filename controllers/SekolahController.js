@@ -9,7 +9,7 @@ export const getData = async (req, res) => {
 
 export const updateSekolah = async (req, res) => {
   const { name, opt } = req.body;
-  if (!name || !opt) {
+  if (!name) {
     return res.status(406).json({ message: 'Data yang dikirim tidak lengkap' });
   }
 

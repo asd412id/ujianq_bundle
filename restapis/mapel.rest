@@ -6,15 +6,15 @@ POST http://localhost:8000/api/v1/mapels
 Content-Type: application/json
 
 {
-  "name":"Bahasa Inggris",
+  "name":"Ilmu Pengetahuan Alam",
   "desc": "Kelas VII"
 }
 
 ###
-GET http://localhost:8000/api/v1/mapels/918e325a-5ecc-4808-bbed-b7528dc7286f
+GET http://localhost:8000/api/v1/mapels/99754cc2-6c25-48df-8175-f8c9dd6e8a7c
 
 ###
-PUT http://localhost:8000/api/v1/mapels/918e325a-5ecc-4808-bbed-b7528dc7286f
+PUT http://localhost:8000/api/v1/mapels/99754cc2-6c25-48df-8175-f8c9dd6e8a7c
 Content-Type: application/json
 
 {
@@ -23,4 +23,4 @@ Content-Type: application/json
 }
 
 ###
-DELETE  http://localhost:8000/api/v1/mapels/918e325a-5ecc-4808-bbed-b7528dc7286f
+DELETE  http://localhost:8000/api/v1/mapels/99754cc2-6c25-48df-8175-f8c9dd6e8a7c
