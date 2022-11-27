@@ -1,4 +1,5 @@
 const { Op } = require("sequelize");
+const Mapel = require("../models/MapelModel.js");
 const User = require("../models/UserModel.js");
 const { getPagination, getPagingData } = require("../utils/Pagination.js");
 
@@ -23,6 +24,15 @@ module.exports.getPenilais = async (req, res) => {
         role: 'PENILAI',
         sekolahId: req.user.sekolahId
       },
+      include: [
+        {
+          model: Mapel,
+          attributes: [
+            'id',
+            ['name', 'text']
+          ]
+        }
+      ],
       order: [
         ['name', 'asc']
       ],
@@ -51,7 +61,7 @@ module.exports.getPenilai = async (req, res) => {
 }
 
 module.exports.store = async (req, res) => {
-  const { name, email, password, confirm_password } = req.body;
+  const { name, email, password, confirm_password, mapels } = req.body;
 
   const data = {};
 
@@ -75,9 +85,14 @@ module.exports.store = async (req, res) => {
     return sendStatus(res, 406, 'Perulangan password tidak benar');
   }
 
+  const m = [];
+  mapels.forEach(v => {
+    m.push(v.id);
+  });
+
   try {
     if (req.params?.id) {
-      if (!name || !email) {
+      if (!name || !email || !mapels.length) {
         return sendStatus(res, 406, 'Data yang dikirim tidak lengkap');
       }
 
@@ -94,8 +109,10 @@ module.exports.store = async (req, res) => {
           sekolahId: req.user.sekolahId
         }
       });
+      const penilai = await User.findByPk(req.params.id);
+      penilai.setMapels(m);
     } else {
-      if (!name || !email || !password) {
+      if (!name || !email || !password || !mapels.length) {
         return sendStatus(res, 406, 'Data yang dikirim tidak lengkap');
       }
 
@@ -105,7 +122,8 @@ module.exports.store = async (req, res) => {
       data.role = 'PENILAI';
       data.sekolahId = req.user.sekolahId;
 
-      await User.create(data);
+      const penilai = await User.create(data);
+      penilai.addMapels(m);
     }
 
     return sendStatus(res, 201, 'Data berhasil disimpan');

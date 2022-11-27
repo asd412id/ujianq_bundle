@@ -1,10 +1,11 @@
 const { existsSync, rmSync } = require("fs");
-const { col, fn, Op } = require("sequelize");
+const { col, fn, Op, Transaction } = require("sequelize");
 const Mapel = require("../models/MapelModel.js");
 const Jadwal = require("../models/JadwalModel.js");
 const { getPagination, getPagingData } = require("../utils/Pagination.js");
 const Peserta = require("../models/PesertaModel.js");
 const Soal = require("../models/SoalModel.js");
+const db = require("../configs/Database.js");
 
 module.exports.getJadwals = async (req, res) => {
   const { page, size, search } = req.query;
@@ -28,22 +29,29 @@ module.exports.getJadwals = async (req, res) => {
         ],
         jadwalKategoryId: req.params.jid
       },
-      attributes: {
-        include: [
-          [fn('count', col('pesertas.id')), 'peserta_count']
-        ]
-      },
       include: [
         {
           model: Peserta,
-          attributes: []
+          attributes: [
+            'id',
+            ['ruang', 'text']
+          ],
+          group: ['ruang']
+        },
+        {
+          model: Soal,
+          attributes: [
+            'id',
+            [fn('concat', col('soals.name'), ' ', '(', col('soals.desc'), ')'), 'text']
+          ],
+          group: ['id']
         }
       ],
       order: [
-        ['createdAt', 'asc']
+        ['active', 'desc'],
+        ['start', 'asc']
       ],
       distinct: true,
-      group: ['id'],
       limit: limit,
       offset: offset
     });
@@ -68,25 +76,83 @@ module.exports.getJadwal = async (req, res) => {
 }
 
 module.exports.store = async (req, res) => {
-  const { name, desc, mapelId } = req.body;
-  if (!name || !mapelId) {
+  const { name, desc, start, end, duration, soal_count, shuffle, show_score, active, soals, ruangs } = req.body;
+  if (!name || !start || !end || !duration || !soal_count || !soals.length || !ruangs.length) {
     return sendStatus(res, 406, 'Data yang dikirim tidak lengkap');
   }
 
+  const s = [];
+  const r = [];
+  soals.forEach(v => {
+    s.push(v.id);
+  });
+
+  ruangs.forEach(v => {
+    r.push(v.text);
+  });
+
+  const tr = await db.transaction();
   try {
-    if (req.params?.id) {
-      await Jadwal.update({ name, desc, mapelId: mapelId }, {
-        where: {
-          id: req.params.id,
-          jadwalKategoryId: req.params.jid
+    const pesertas = await Peserta.findAll({
+      where: {
+        ruang: {
+          [Op.in]: r
         }
-      });
+      },
+      attributes: ['id']
+    });
+    const dataSoals = await Soal.findAll({
+      where: {
+        id: {
+          [Op.in]: s
+        }
+      },
+      attributes: ['id']
+    });
+
+    if (req.params?.id) {
+      await Jadwal.update({
+        name,
+        desc,
+        start,
+        end,
+        duration,
+        soal_count,
+        shuffle,
+        show_score,
+        active
+      },
+        {
+          where: {
+            id: req.params.id,
+            jadwalKategoryId: req.params.jid
+          }
+        }
+      );
+      const jadwal = await Jadwal.findByPk(req.params.id);
+      jadwal.setSoals(dataSoals);
+      jadwal.setPesertas(pesertas);
     } else {
-      await Jadwal.create({ name, desc, mapelId: mapelId, jadwalKategoryId: req.params.jid });
+      const jadwal = await Jadwal.create({
+        name,
+        desc,
+        start,
+        end,
+        duration,
+        soal_count,
+        shuffle,
+        show_score,
+        active,
+        jadwalKategoryId: req.params.jid,
+      });
+      jadwal.addPesertas(pesertas);
+      jadwal.addSoals(dataSoals);
     }
+    tr.commit();
     return sendStatus(res, 201, 'Data berhasil disimpan');
   } catch (error) {
-    return sendStatus(res, 500, 'Data gagal disimpan');
+    tr.rollback();
+    return sendStatus(res, 500, 'Data gagal disimpan: ' + error.message);
   }
 }
 

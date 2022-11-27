@@ -9,13 +9,14 @@ const SoalKategoriRoutes = require('./routes/SoalKategoriRoutes.js');
 const SoalRoutes = require('./routes/SoalRoutes.js');
 const SoalItemRoutes = require('./routes/SoalItemRoutes.js');
 const JadwalKategoriRoutes = require('./routes/JadwalKategoriRoutes.js');
+const SearchRoutes = require('./routes/SearchRoutes.js');
 const JadwalRoutes = require('./routes/JadwalRoutes.js');
 const bodyParser = require('body-parser');
 const cookie = require('cookie-parser');
 const dotenv = require('dotenv');
 
-const cluster = require('cluster');
-const { cpus } = require('os');
+// const cluster = require('cluster');
+// const { cpus } = require('os');
 const process = require('process');
 
 dotenv.config();
@@ -44,7 +45,9 @@ app.use(`${_API}/soal-items`, SoalItemRoutes);
 app.use(`${_API}/jadwal-kategories`, JadwalKategoriRoutes);
 app.use(`${_API}/jadwals`, JadwalRoutes);
 
-const numCPUs = cpus().length;
+app.use(`${_API}/search`, SearchRoutes);
+
+// const numCPUs = cpus().length;
 
 if (process.env.APP_ENV !== 'production') {
   app.listen(PORT, () => {
