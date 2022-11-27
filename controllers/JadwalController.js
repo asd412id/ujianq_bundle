@@ -1,16 +1,17 @@
 const { existsSync, rmSync } = require("fs");
 const { col, fn, Op } = require("sequelize");
 const Mapel = require("../models/MapelModel.js");
-const SoalItem = require("../models/SoalItemModel.js");
-const Soal = require("../models/SoalModel.js");
+const Jadwal = require("../models/JadwalModel.js");
 const { getPagination, getPagingData } = require("../utils/Pagination.js");
+const Peserta = require("../models/PesertaModel.js");
+const Soal = require("../models/SoalModel.js");
 
-module.exports.getSoals = async (req, res) => {
+module.exports.getJadwals = async (req, res) => {
   const { page, size, search } = req.query;
   const { limit, offset } = getPagination(page, size);
 
   try {
-    const datas = await Soal.findAndCountAll({
+    const datas = await Jadwal.findAndCountAll({
       subQuery: false,
       where: {
         [Op.or]: [
@@ -25,21 +26,17 @@ module.exports.getSoals = async (req, res) => {
             }
           }
         ],
-        soalKategoryId: req.params.katid
+        jadwalKategoryId: req.params.jid
       },
       attributes: {
         include: [
-          [fn('count', col('soal_items.id')), 'soal_count']
+          [fn('count', col('pesertas.id')), 'peserta_count']
         ]
       },
       include: [
         {
-          model: SoalItem,
+          model: Peserta,
           attributes: []
-        },
-        {
-          model: Mapel,
-          attributes: ['name']
         }
       ],
       order: [
@@ -56,12 +53,12 @@ module.exports.getSoals = async (req, res) => {
   }
 }
 
-module.exports.getSoal = async (req, res) => {
+module.exports.getJadwal = async (req, res) => {
   try {
-    const data = await Soal.findOne({
+    const data = await Jadwal.findOne({
       where: {
         id: req.params.id,
-        soalKategoryId: req.params.katid
+        jadwalKategoryId: req.params.jid
       }
     });
     return res.status(200).json(data);
@@ -78,14 +75,14 @@ module.exports.store = async (req, res) => {
 
   try {
     if (req.params?.id) {
-      await Soal.update({ name, desc, mapelId: mapelId }, {
+      await Jadwal.update({ name, desc, mapelId: mapelId }, {
         where: {
           id: req.params.id,
-          soalKategoryId: req.params.katid
+          jadwalKategoryId: req.params.jid
         }
       });
     } else {
-      await Soal.create({ name, desc, mapelId: mapelId, soalKategoryId: req.params.katid });
+      await Jadwal.create({ name, desc, mapelId: mapelId, jadwalKategoryId: req.params.jid });
     }
     return sendStatus(res, 201, 'Data berhasil disimpan');
   } catch (error) {
@@ -98,10 +95,10 @@ module.exports.destroy = async (req, res) => {
     if (existsSync(`${process.env.APP_ASSETS_PATH}/assets/${req.params.id}`)) {
       rmSync(`${process.env.APP_ASSETS_PATH}/assets/${req.params.id}`, { recursive: true, force: true });
     }
-    await Soal.destroy({
+    await Jadwal.destroy({
       where: {
         id: req.params.id,
-        soalKategoryId: req.params.katid
+        jadwalKategoryId: req.params.jid
       }
     });
     return sendStatus(res, 202, 'Data berhasil dihapus');

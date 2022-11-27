@@ -1,6 +1,6 @@
-import { Sequelize } from 'sequelize';
-import db from '../configs/Database.js';
-import Jadwal from './JadwalModel.js';
+const { Sequelize } = require('sequelize');
+const db = require('../configs/Database.js');
+const Jadwal = require('./JadwalModel.js');
 
 const { DataTypes } = Sequelize;
 
@@ -25,7 +25,7 @@ JadwalKategori.hasMany(Jadwal, {
 });
 Jadwal.belongsTo(JadwalKategori);
 
-export default JadwalKategori;
+module.exports = JadwalKategori;
 
 (async () => {
   await db.sync();

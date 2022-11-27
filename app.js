@@ -1,22 +1,22 @@
-import express from 'express';
-import cors from 'cors';
-import UserRoutes from './routes/UserRoutes.js';
-import SekolahRoutes from './routes/SekolahRoutes.js';
-import MapelRoutes from './routes/MapelRoutes.js';
-import PenilaiRoutes from './routes/PenilaiRoutes.js';
-import PesertaRoutes from './routes/PesertaRoutes.js';
-import SoalKategoriRoutes from './routes/SoalKategoriRoutes.js';
-import SoalRoutes from './routes/SoalRoutes.js';
-import SoalItemRoutes from './routes/SoalItemRoutes.js';
-import JadwalKategoriRoutes from './routes/JadwalKategoriRoutes.js';
-import bodyParser from 'body-parser'
-import cookie from 'cookie-parser'
-import dotenv from 'dotenv';
+const express = require('express');
+const cors = require('cors');
+const UserRoutes = require('./routes/UserRoutes.js');
+const SekolahRoutes = require('./routes/SekolahRoutes.js');
+const MapelRoutes = require('./routes/MapelRoutes.js');
+const PenilaiRoutes = require('./routes/PenilaiRoutes.js');
+const PesertaRoutes = require('./routes/PesertaRoutes.js');
+const SoalKategoriRoutes = require('./routes/SoalKategoriRoutes.js');
+const SoalRoutes = require('./routes/SoalRoutes.js');
+const SoalItemRoutes = require('./routes/SoalItemRoutes.js');
+const JadwalKategoriRoutes = require('./routes/JadwalKategoriRoutes.js');
+const JadwalRoutes = require('./routes/JadwalRoutes.js');
+const bodyParser = require('body-parser');
+const cookie = require('cookie-parser');
+const dotenv = require('dotenv');
 
-import cluster from 'cluster';
-import { cpus } from 'os';
-import process from 'process';
-import { dirname } from 'path';
+const cluster = require('cluster');
+const { cpus } = require('os');
+const process = require('process');
 
 dotenv.config();
 
@@ -42,6 +42,7 @@ app.use(`${_API}/soal-kategories`, SoalKategoriRoutes);
 app.use(`${_API}/soals`, SoalRoutes);
 app.use(`${_API}/soal-items`, SoalItemRoutes);
 app.use(`${_API}/jadwal-kategories`, JadwalKategoriRoutes);
+app.use(`${_API}/jadwals`, JadwalRoutes);
 
 const numCPUs = cpus().length;
 
@@ -50,20 +51,20 @@ if (process.env.APP_ENV !== 'production') {
     console.log(`Listening Port ` + PORT);
   });
 } else {
-  if (cluster.isPrimary) {
-    console.log(`Primary ${process.pid} is running`);
+  // if (cluster.isPrimary) {
+  //   console.log(`Primary ${process.pid} is running`);
 
-    // Fork workers.
-    for (let i = 0; i < numCPUs; i++) {
-      cluster.fork();
-    }
+  //   // Fork workers.
+  //   for (let i = 0; i < numCPUs; i++) {
+  //     cluster.fork();
+  //   }
 
-    cluster.on('exit', (worker, code, signal) => {
-      console.log(`worker ${worker.process.pid} died`);
-      cluster.fork();
-    });
-  } else {
-    app.listen();
-  }
+  //   cluster.on('exit', (worker, code, signal) => {
+  //     console.log(`worker ${worker.process.pid} died`);
+  //     cluster.fork();
+  //   });
+  // } else {
+  app.listen();
+  // }
 
 }

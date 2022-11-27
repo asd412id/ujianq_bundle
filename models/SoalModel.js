@@ -1,6 +1,6 @@
-import { Sequelize } from 'sequelize';
-import db from '../configs/Database.js';
-import SoalItem from './SoalItemModel.js';
+const { Sequelize } = require('sequelize');
+const db = require('../configs/Database.js');
+const SoalItem = require('./SoalItemModel.js');
 
 const { DataTypes } = Sequelize;
 
@@ -25,7 +25,7 @@ Soal.hasMany(SoalItem, {
 });
 SoalItem.belongsTo(Soal);
 
-export default Soal;
+module.exports = Soal;
 
 (async () => {
   await db.sync();

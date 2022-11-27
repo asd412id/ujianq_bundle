@@ -1,8 +1,8 @@
-import { Op } from "sequelize";
-import User from "../models/UserModel.js";
-import { getPagination, getPagingData } from "../utils/Pagination.js";
+const { Op } = require("sequelize");
+const User = require("../models/UserModel.js");
+const { getPagination, getPagingData } = require("../utils/Pagination.js");
 
-export const getPenilais = async (req, res) => {
+module.exports.getPenilais = async (req, res) => {
   const { page, size, search } = req.query;
   const { limit, offset } = getPagination(page, size);
 
@@ -35,7 +35,7 @@ export const getPenilais = async (req, res) => {
   }
 }
 
-export const getPenilai = async (req, res) => {
+module.exports.getPenilai = async (req, res) => {
   try {
     const data = await User.scope('hidePassword').findOne({
       where: {
@@ -50,7 +50,7 @@ export const getPenilai = async (req, res) => {
   }
 }
 
-export const store = async (req, res) => {
+module.exports.store = async (req, res) => {
   const { name, email, password, confirm_password } = req.body;
 
   const data = {};
@@ -114,7 +114,7 @@ export const store = async (req, res) => {
   }
 }
 
-export const destroy = async (req, res) => {
+module.exports.destroy = async (req, res) => {
   const destroy = await User.destroy({
     where: {
       id: req.params.id,

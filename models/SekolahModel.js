@@ -1,10 +1,10 @@
-import { Sequelize } from 'sequelize';
-import db from '../configs/Database.js';
-import JadwalKategori from './JadwalKategoriModel.js';
-import Mapel from './MapelModel.js';
-import Peserta from './PesertaModel.js';
-import SoalKategori from './SoalKategoriModel.js';
-import Soal from './SoalModel.js';
+const { Sequelize } = require('sequelize');
+const db = require('../configs/Database.js');
+const JadwalKategori = require('./JadwalKategoriModel.js');
+const Mapel = require('./MapelModel.js');
+const Peserta = require('./PesertaModel.js');
+const SoalKategori = require('./SoalKategoriModel.js');
+const Soal = require('./SoalModel.js');
 
 const { DataTypes } = Sequelize;
 
@@ -41,7 +41,7 @@ Peserta.belongsTo(Sekolah);
 SoalKategori.belongsTo(Sekolah);
 JadwalKategori.belongsTo(Sekolah);
 
-export default Sekolah;
+module.exports = Sekolah;
 
 (async () => {
   await db.sync();

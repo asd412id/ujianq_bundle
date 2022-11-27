@@ -1,8 +1,8 @@
-import { Op } from "sequelize";
-import Mapel from "../models/MapelModel.js";
-import { getPagination, getPagingData } from "../utils/Pagination.js";
+const { Op } = require("sequelize");
+const Mapel = require("../models/MapelModel.js");
+const { getPagination, getPagingData } = require("../utils/Pagination.js");
 
-export const getMapels = async (req, res) => {
+module.exports.getMapels = async (req, res) => {
   const { page, size, search } = req.query;
   const { limit, offset } = getPagination(page, size);
 
@@ -34,7 +34,7 @@ export const getMapels = async (req, res) => {
   }
 }
 
-export const getMapel = async (req, res) => {
+module.exports.getMapel = async (req, res) => {
   try {
     const data = await Mapel.findOne({
       where: {
@@ -48,7 +48,7 @@ export const getMapel = async (req, res) => {
   }
 }
 
-export const store = async (req, res) => {
+module.exports.store = async (req, res) => {
   const { name, desc } = req.body;
   if (!name) {
     return sendStatus(res, 406, 'Data yang dikirim tidak lengkap');
@@ -71,7 +71,7 @@ export const store = async (req, res) => {
   }
 }
 
-export const destroy = async (req, res) => {
+module.exports.destroy = async (req, res) => {
   try {
     await Mapel.destroy({
       where: {

@@ -1,6 +1,6 @@
-import { Sequelize } from 'sequelize';
-import db from '../configs/Database.js';
-import Soal from './SoalModel.js';
+const { Sequelize } = require('sequelize');
+const db = require('../configs/Database.js');
+const Soal = require('./SoalModel.js');
 
 const { DataTypes } = Sequelize;
 
@@ -23,7 +23,7 @@ const Mapel = db.define('mapels', {
 Mapel.hasMany(Soal);
 Soal.belongsTo(Mapel);
 
-export default Mapel;
+module.exports = Mapel;
 
 (async () => {
   await db.sync();

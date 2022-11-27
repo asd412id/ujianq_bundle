@@ -1,7 +1,7 @@
-import express from 'express';
-import { destroy, getSoalKategori, getSoalKategoris, store } from '../controllers/SoalKategoriController.js';
-import auth from '../middlewares/AuthMiddleware.js';
-import { role } from '../middlewares/RoleMiddleware.js';
+const express = require('express');
+const { destroy, getSoalKategori, getSoalKategoris, store } = require('../controllers/SoalKategoriController.js');
+const auth = require('../middlewares/AuthMiddleware.js');
+const { role } = require('../middlewares/RoleMiddleware.js');
 
 const router = express.Router();
 
@@ -11,4 +11,4 @@ router.get('/:id', auth, role(['OPERATOR']), getSoalKategori);
 router.put('/:id', auth, role(['OPERATOR']), store);
 router.delete('/:id', auth, role(['OPERATOR']), destroy);
 
-export default router;
+module.exports = router;

@@ -1,9 +1,9 @@
-import { col, fn, Op } from "sequelize";
-import SoalKategori from "../models/SoalKategoriModel.js";
-import Soal from "../models/SoalModel.js";
-import { getPagination, getPagingData } from "../utils/Pagination.js";
+const { col, fn, Op } = require("sequelize");
+const SoalKategori = require("../models/SoalKategoriModel.js");
+const Soal = require("../models/SoalModel.js");
+const { getPagination, getPagingData } = require("../utils/Pagination.js");
 
-export const getSoalKategoris = async (req, res) => {
+module.exports.getSoalKategoris = async (req, res) => {
   const { page, size, search } = req.query;
   const { limit, offset } = getPagination(page, size);
 
@@ -50,7 +50,7 @@ export const getSoalKategoris = async (req, res) => {
   }
 }
 
-export const getSoalKategori = async (req, res) => {
+module.exports.getSoalKategori = async (req, res) => {
   try {
     const data = await SoalKategori.findOne({
       where: {
@@ -64,7 +64,7 @@ export const getSoalKategori = async (req, res) => {
   }
 }
 
-export const store = async (req, res) => {
+module.exports.store = async (req, res) => {
   const { name, desc } = req.body;
   if (!name) {
     return sendStatus(res, 406, 'Data yang dikirim tidak lengkap');
@@ -87,7 +87,7 @@ export const store = async (req, res) => {
   }
 }
 
-export const destroy = async (req, res) => {
+module.exports.destroy = async (req, res) => {
   try {
     await SoalKategori.destroy({
       where: {

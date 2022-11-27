@@ -1,14 +1,14 @@
-import User from "../models/UserModel.js";
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-import bcryptjs from "bcryptjs";
-import Sekolah from "../models/SekolahModel.js";
-import { Sequelize } from "sequelize";
+const User = require("../models/UserModel.js");
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+const bcryptjs = require("bcryptjs");
+const Sekolah = require("../models/SekolahModel.js");
+const { Sequelize } = require("sequelize");
 
 dotenv.config();
 const { compareSync } = bcryptjs;
 
-export const UserRegister = async (req, res) => {
+exports.UserRegister = async (req, res) => {
   const { sekolah, name, email, password } = req.body;
   if (!name || !email) {
     return res.status(406).json({ message: 'Data tidak lengkap' });
@@ -41,7 +41,7 @@ export const UserRegister = async (req, res) => {
 
 }
 
-export const UserLogin = async (req, res) => {
+exports.UserLogin = async (req, res) => {
   const { email, password } = req.body;
   const datauser = await User.findOne({ where: { email }, include: Sekolah });
   if (!datauser) {
@@ -64,7 +64,7 @@ export const UserLogin = async (req, res) => {
   });
 }
 
-export const UserLogout = async (req, res) => {
+exports.UserLogout = async (req, res) => {
   if (req.cookies._token) {
     res.cookie('_token', 'null', { maxAge: -1 });
   }
@@ -74,11 +74,11 @@ export const UserLogout = async (req, res) => {
   });
 }
 
-export const checkLogin = async (req, res) => {
+exports.checkLogin = async (req, res) => {
   return res.status(200).json(req.user);
 }
 
-export const updateAccount = async (req, res) => {
+exports.updateAccount = async (req, res) => {
   const { name, email, password, confirm_password } = req.body;
   if (!name || !email) {
     return res.status(406).json({ message: 'Data tidak lengkap' });
@@ -120,7 +120,7 @@ export const updateAccount = async (req, res) => {
   }
 }
 
-export const getUsers = async (req, res) => {
+exports.getUsers = async (req, res) => {
   const users = await User.scope('hidePassword').findAll({
     order: [['name', 'asc']],
     include: Sekolah

@@ -1,13 +1,13 @@
-import Sekolah from "../models/SekolahModel.js";
+const Sekolah = require("../models/SekolahModel.js");
 
 
-export const getData = async (req, res) => {
+module.exports.getData = async (req, res) => {
   const sekolah = await Sekolah.findByPk(req.user.sekolahId);
 
   return res.status(200).json(sekolah);
 }
 
-export const updateSekolah = async (req, res) => {
+module.exports.updateSekolah = async (req, res) => {
   const { name, opt } = req.body;
   if (!name) {
     return res.status(406).json({ message: 'Data yang dikirim tidak lengkap' });

@@ -1,6 +1,6 @@
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-import User from '../models/UserModel.js';
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+const User = require('../models/UserModel.js');
 
 dotenv.config();
 
@@ -32,7 +32,7 @@ const auth = async (req, res, next) => {
   next();
 }
 
-export default auth;
+module.exports = auth;
 
 const accessDenied = (msg, res) => {
   return res.status(401).json({

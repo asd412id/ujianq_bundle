@@ -1,9 +1,9 @@
-import { col, fn, Op } from "sequelize";
-import SoalItem from "../models/SoalItemModel.js";
-import { getPagination, getPagingData } from "../utils/Pagination.js";
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "fs";
+const { Op } = require("sequelize");
+const SoalItem = require("../models/SoalItemModel.js");
+const { getPagination, getPagingData } = require("../utils/Pagination.js");
+const { existsSync, mkdirSync, rmSync, writeFileSync } = require("fs");
 
-export const getSoalItems = async (req, res) => {
+module.exports.getSoalItems = async (req, res) => {
   const { page, size, search } = req.query;
   const { limit, offset } = getPagination(page, size);
 
@@ -44,7 +44,7 @@ export const getSoalItems = async (req, res) => {
   }
 }
 
-export const getSoalItem = async (req, res) => {
+module.exports.getSoalItem = async (req, res) => {
   try {
     const data = await SoalItem.findOne({
       where: {
@@ -93,7 +93,7 @@ const deleteAssets = (assets, dassets) => {
   });
 }
 
-export const store = async (req, res) => {
+module.exports.store = async (req, res) => {
   const { type, num, text, bobot, options, corrects, relations, labels, assets, shuffle, answer } = req.body;
   if (!type || !num || !text) {
     return sendStatus(res, 406, 'Data yang dikirim tidak lengkap');
@@ -126,7 +126,7 @@ export const store = async (req, res) => {
   }
 }
 
-export const destroy = async (req, res) => {
+module.exports.destroy = async (req, res) => {
   try {
     const data = await SoalItem.findByPk(req.params.id);
     if (data) {

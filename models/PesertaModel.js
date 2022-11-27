@@ -1,8 +1,8 @@
-import bcryptjs from 'bcryptjs';
-import { Sequelize } from 'sequelize';
-import db from '../configs/Database.js';
-import Jadwal from './JadwalModel.js';
-import PesertaLogin from './PesertaLoginModel.js';
+const bcryptjs = require('bcryptjs');
+const { Sequelize } = require('sequelize');
+const db = require('../configs/Database.js');
+const Jadwal = require('./JadwalModel.js');
+const PesertaLogin = require('./PesertaLoginModel.js');
 
 const { hashSync } = bcryptjs;
 
@@ -51,7 +51,7 @@ Peserta.hasMany(PesertaLogin, {
 });
 PesertaLogin.belongsTo(Peserta);
 
-export default Peserta;
+module.exports = Peserta;
 
 (async () => {
   await db.sync();

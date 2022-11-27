@@ -1,10 +1,10 @@
-import bcryptjs from 'bcryptjs';
-import { Sequelize } from 'sequelize';
-import db from '../configs/Database.js';
-import Sekolah from './SekolahModel.js';
-import dotenv from 'dotenv';
-import Jadwal from './JadwalModel.js';
-import Mapel from './MapelModel.js';
+const bcryptjs = require('bcryptjs');
+const { Sequelize } = require('sequelize');
+const db = require('../configs/Database.js');
+const Sekolah = require('./SekolahModel.js');
+const dotenv = require('dotenv');
+const Jadwal = require('./JadwalModel.js');
+const Mapel = require('./MapelModel.js');
 
 dotenv.config();
 
@@ -60,7 +60,7 @@ User.belongsTo(Sekolah);
 User.belongsToMany(Jadwal, { through: 'User_Jadwal', timestamps: false });
 Jadwal.belongsToMany(User, { through: 'User_Jadwal', timestamps: false });
 
-export default User;
+module.exports = User;
 
 (async () => {
   await db.sync();

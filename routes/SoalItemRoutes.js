@@ -1,7 +1,7 @@
-import express from 'express';
-import { destroy, getSoalItem, getSoalItems, store } from '../controllers/SoalItemController.js';
-import auth from '../middlewares/AuthMiddleware.js';
-import { role } from '../middlewares/RoleMiddleware.js';
+const express = require('express');
+const { destroy, getSoalItem, getSoalItems, store } = require('../controllers/SoalItemController.js');
+const auth = require('../middlewares/AuthMiddleware.js');
+const { role } = require('../middlewares/RoleMiddleware.js');
 
 const router = express.Router();
 
@@ -11,4 +11,4 @@ router.get('/:soalid/:id', auth, role(['OPERATOR']), getSoalItem);
 router.put('/:soalid/:id', auth, role(['OPERATOR']), store);
 router.delete('/:soalid/:id', auth, role(['OPERATOR']), destroy);
 
-export default router;
+module.exports = router;

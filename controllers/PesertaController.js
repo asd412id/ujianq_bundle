@@ -1,8 +1,8 @@
-import { Op } from "sequelize";
-import Peserta from "../models/PesertaModel.js";
-import { getPagination, getPagingData } from "../utils/Pagination.js";
+const { Op } = require("sequelize");
+const Peserta = require("../models/PesertaModel.js");
+const { getPagination, getPagingData } = require("../utils/Pagination.js");
 
-export const getPesertas = async (req, res) => {
+module.exports.getPesertas = async (req, res) => {
   const { page, size, search } = req.query;
   const { limit, offset } = getPagination(page, size);
 
@@ -41,7 +41,7 @@ export const getPesertas = async (req, res) => {
   }
 }
 
-export const getPeserta = async (req, res) => {
+module.exports.getPeserta = async (req, res) => {
   try {
     const data = await Peserta.scope('hidePassword').findOne({
       where: {
@@ -55,7 +55,7 @@ export const getPeserta = async (req, res) => {
   }
 }
 
-export const store = async (req, res) => {
+module.exports.store = async (req, res) => {
   const { name, username, password, ruang } = req.body;
 
   const data = {};
@@ -116,7 +116,7 @@ export const store = async (req, res) => {
   }
 }
 
-export const destroy = async (req, res) => {
+module.exports.destroy = async (req, res) => {
   const destroy = await Peserta.destroy({
     where: {
       id: req.params.id,

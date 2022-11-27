@@ -1,6 +1,6 @@
-import { Sequelize } from 'sequelize';
-import db from '../configs/Database.js';
-import PesertaTest from './PesertaTestModel.js';
+const { Sequelize } = require('sequelize');
+const db = require('../configs/Database.js');
+const PesertaTest = require('./PesertaTestModel.js');
 
 const { DataTypes } = Sequelize;
 
@@ -32,7 +32,7 @@ PesertaLogin.hasMany(PesertaTest, {
 });
 PesertaTest.belongsTo(PesertaLogin);
 
-export default PesertaLogin;
+module.exports = PesertaLogin;
 
 (async () => {
   await db.sync();

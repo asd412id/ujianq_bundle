@@ -1,11 +1,11 @@
-import express from 'express';
-import { getData, updateSekolah } from '../controllers/SekolahController.js';
-import auth from '../middlewares/AuthMiddleware.js';
-import { role } from '../middlewares/RoleMiddleware.js';
+const express = require('express');
+const { getData, updateSekolah } = require('../controllers/SekolahController.js');
+const auth = require('../middlewares/AuthMiddleware.js');
+const { role } = require('../middlewares/RoleMiddleware.js');
 
 const router = express.Router();
 
 router.get('/', auth, role(['OPERATOR']), getData);
 router.put('/', auth, role(['OPERATOR']), updateSekolah);
 
-export default router;
+module.exports = router;

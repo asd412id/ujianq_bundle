@@ -1,7 +1,7 @@
-import { Sequelize } from 'sequelize';
-import db from '../configs/Database.js';
-import PesertaLogin from './PesertaLoginModel.js';
-import Soal from './SoalModel.js';
+const { Sequelize } = require('sequelize');
+const db = require('../configs/Database.js');
+const PesertaLogin = require('./PesertaLoginModel.js');
+const Soal = require('./SoalModel.js');
 
 const { DataTypes } = Sequelize;
 
@@ -15,6 +15,9 @@ const Jadwal = db.define('jadwals', {
   name: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  desc: {
+    type: DataTypes.TEXT,
   },
   start: {
     type: DataTypes.DATE,
@@ -48,7 +51,7 @@ PesertaLogin.belongsTo(Jadwal);
 Jadwal.belongsToMany(Soal, { through: 'Jadwal_Soal', timestamps: false });
 Soal.belongsToMany(Jadwal, { through: 'Jadwal_Soal', timestamps: false });
 
-export default Jadwal;
+module.exports = Jadwal;
 
 (async () => {
   await db.sync();

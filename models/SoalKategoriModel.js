@@ -1,6 +1,6 @@
-import { Sequelize } from 'sequelize';
-import db from '../configs/Database.js';
-import Soal from './SoalModel.js';
+const { Sequelize } = require('sequelize');
+const db = require('../configs/Database.js');
+const Soal = require('./SoalModel.js');
 
 const { DataTypes } = Sequelize;
 
@@ -25,7 +25,7 @@ SoalKategori.hasMany(Soal, {
 });
 Soal.belongsTo(SoalKategori);
 
-export default SoalKategori;
+module.exports = SoalKategori;
 
 (async () => {
   await db.sync();
