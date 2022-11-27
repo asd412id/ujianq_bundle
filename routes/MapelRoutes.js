@@ -5,7 +5,7 @@ const { role } = require('../middlewares/RoleMiddleware.js');
 
 const router = express.Router();
 
-router.get('/', auth, role(['OPERATOR']), getMapels);
+router.get('/', auth, role(['OPERATOR', 'PENILAI']), getMapels);
 router.post('/', auth, role(['OPERATOR']), store);
 router.get('/:id', auth, role(['OPERATOR']), getMapel);
 router.put('/:id', auth, role(['OPERATOR']), store);

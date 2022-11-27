@@ -3,6 +3,7 @@ const { col, fn, Op } = require("sequelize");
 const Mapel = require("../models/MapelModel.js");
 const SoalItem = require("../models/SoalItemModel.js");
 const Soal = require("../models/SoalModel.js");
+const User = require("../models/UserModel.js");
 const { getPagination, getPagingData } = require("../utils/Pagination.js");
 
 module.exports.getSoals = async (req, res) => {
@@ -10,7 +11,7 @@ module.exports.getSoals = async (req, res) => {
   const { limit, offset } = getPagination(page, size);
 
   try {
-    const datas = await Soal.findAndCountAll({
+    const datas = req.user.role === 'OPERATOR' ? await Soal.findAndCountAll({
       subQuery: false,
       where: {
         [Op.or]: [
@@ -40,6 +41,52 @@ module.exports.getSoals = async (req, res) => {
         {
           model: Mapel,
           attributes: ['name']
+        }
+      ],
+      order: [
+        ['createdAt', 'asc']
+      ],
+      distinct: true,
+      group: ['id'],
+      limit: limit,
+      offset: offset
+    }) : await Soal.findAndCountAll({
+      subQuery: false,
+      where: {
+        [Op.or]: [
+          {
+            name: {
+              [Op.substring]: search
+            }
+          },
+          {
+            desc: {
+              [Op.substring]: search
+            }
+          }
+        ],
+        soalKategoryId: req.params.katid,
+        '$mapel->users.id$': { [Op.eq]: req.user.id }
+      },
+      attributes: {
+        include: [
+          [fn('count', col('soal_items.id')), 'soal_count']
+        ]
+      },
+      include: [
+        {
+          model: SoalItem,
+          attributes: []
+        },
+        {
+          model: Mapel,
+          attributes: ['name'],
+          include: [
+            {
+              model: User,
+              attributes: []
+            }
+          ]
         }
       ],
       order: [

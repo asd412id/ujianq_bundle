@@ -5,10 +5,10 @@ const { role } = require('../middlewares/RoleMiddleware.js');
 
 const router = express.Router();
 
-router.get('/', auth, role(['OPERATOR']), getSoalKategoris);
-router.post('/', auth, role(['OPERATOR']), store);
-router.get('/:id', auth, role(['OPERATOR']), getSoalKategori);
-router.put('/:id', auth, role(['OPERATOR']), store);
-router.delete('/:id', auth, role(['OPERATOR']), destroy);
+router.get('/', auth, role(['OPERATOR', 'PENILAI']), getSoalKategoris);
+router.post('/', auth, role(['OPERATOR', 'PENILAI']), store);
+router.get('/:id', auth, role(['OPERATOR', 'PENILAI']), getSoalKategori);
+router.put('/:id', auth, role(['OPERATOR', 'PENILAI']), store);
+router.delete('/:id', auth, role(['OPERATOR', 'PENILAI']), destroy);
 
 module.exports = router;

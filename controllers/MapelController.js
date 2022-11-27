@@ -1,5 +1,6 @@
 const { Op } = require("sequelize");
 const Mapel = require("../models/MapelModel.js");
+const User = require("../models/UserModel.js");
 const { getPagination, getPagingData } = require("../utils/Pagination.js");
 
 module.exports.getMapels = async (req, res) => {
@@ -7,7 +8,8 @@ module.exports.getMapels = async (req, res) => {
   const { limit, offset } = getPagination(page, size);
 
   try {
-    const datas = await Mapel.findAndCountAll({
+    const datas = req.user.role === 'OPERATOR' ? await Mapel.findAndCountAll({
+      subQuery: false,
       where: {
         [Op.or]: [
           {
@@ -22,6 +24,34 @@ module.exports.getMapels = async (req, res) => {
         ],
         sekolahId: req.user.sekolahId
       },
+      order: [
+        ['name', 'asc']
+      ],
+      limit: limit,
+      offset: offset,
+    }) : await Mapel.findAndCountAll({
+      subQuery: false,
+      where: {
+        [Op.or]: [
+          {
+            name: {
+              [Op.substring]: search
+            }
+          }, {
+            desc: {
+              [Op.substring]: search
+            }
+          }
+        ],
+        sekolahId: req.user.sekolahId,
+        '$users.id$': { [Op.eq]: req.user.id }
+      },
+      include: [
+        {
+          model: User,
+          attributes: []
+        }
+      ],
       order: [
         ['name', 'asc']
       ],

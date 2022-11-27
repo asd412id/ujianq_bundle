@@ -6,13 +6,14 @@ const { getPagination, getPagingData } = require("../utils/Pagination.js");
 const Peserta = require("../models/PesertaModel.js");
 const Soal = require("../models/SoalModel.js");
 const db = require("../configs/Database.js");
+const User = require("../models/UserModel.js");
 
 module.exports.getJadwals = async (req, res) => {
   const { page, size, search } = req.query;
   const { limit, offset } = getPagination(page, size);
 
   try {
-    const datas = await Jadwal.findAndCountAll({
+    const datas = req.user.role === 'OPERATOR' ? await Jadwal.findAndCountAll({
       subQuery: false,
       where: {
         [Op.or]: [
@@ -43,6 +44,61 @@ module.exports.getJadwals = async (req, res) => {
           attributes: [
             'id',
             [fn('concat', col('soals.name'), ' ', '(', col('soals.desc'), ')'), 'text']
+          ],
+          group: ['id']
+        }
+      ],
+      order: [
+        ['active', 'desc'],
+        ['start', 'asc']
+      ],
+      distinct: true,
+      limit: limit,
+      offset: offset
+    }) : await Jadwal.findAndCountAll({
+      subQuery: false,
+      where: {
+        [Op.or]: [
+          {
+            name: {
+              [Op.substring]: search
+            }
+          },
+          {
+            desc: {
+              [Op.substring]: search
+            }
+          }
+        ],
+        jadwalKategoryId: req.params.jid,
+        '$soals->mapel->users.id$': { [Op.eq]: req.user.id }
+      },
+      include: [
+        {
+          model: Peserta,
+          attributes: [
+            'id',
+            ['ruang', 'text']
+          ],
+          group: ['ruang']
+        },
+        {
+          model: Soal,
+          attributes: [
+            'id',
+            [fn('concat', col('soals.name'), ' ', '(', col('soals.desc'), ')'), 'text']
+          ],
+          include: [
+            {
+              model: Mapel,
+              attributes: [],
+              include: [
+                {
+                  model: User,
+                  attributes: []
+                }
+              ]
+            }
           ],
           group: ['id']
         }

@@ -4,11 +4,12 @@ const Peserta = require("../models/PesertaModel.js");
 const Sekolah = require("../models/SekolahModel.js");
 const SoalKategori = require("../models/SoalKategoriModel.js");
 const Soal = require("../models/SoalModel.js");
+const User = require("../models/UserModel.js");
 
 module.exports.soal = async (req, res) => {
   const { search } = req.query;
   try {
-    const data = await Soal.findAll({
+    const data = req.user.role === 'OPERATOR' ? await Soal.findAll({
       where: {
         [Op.or]: [
           {
@@ -29,6 +30,52 @@ module.exports.soal = async (req, res) => {
         [fn('concat', col('soals.name'), ' ', '(', col('soals.desc'), ')'), 'text']
       ],
       include: [
+        {
+          model: SoalKategori,
+          attributes: [],
+          include: [
+            {
+              model: Sekolah,
+              attributes: [],
+            }
+          ]
+        }
+      ],
+      order: [
+        ['name', 'asc']
+      ]
+    }) : await Soal.findAll({
+      where: {
+        [Op.or]: [
+          {
+            name: {
+              [Op.substring]: search
+            }
+          },
+          {
+            desc: {
+              [Op.substring]: search
+            }
+          }
+        ],
+        '$soal_kategory->sekolah.id$': { [Op.eq]: req.user.sekolahId },
+        '$mapel->users.id$': { [Op.eq]: req.user.id }
+      },
+      attributes: [
+        'id',
+        [fn('concat', col('soals.name'), ' ', '(', col('soals.desc'), ')'), 'text']
+      ],
+      include: [
+        {
+          model: Mapel,
+          attributes: [],
+          include: [
+            {
+              model: User,
+              attributes: []
+            }
+          ]
+        },
         {
           model: SoalKategori,
           attributes: [],
