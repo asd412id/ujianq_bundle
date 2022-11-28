@@ -21,9 +21,19 @@ module.exports.soal = async (req, res) => {
             desc: {
               [Op.substring]: search
             }
+          },
+          {
+            '$mapel.name$': {
+              [Op.substring]: search
+            }
+          },
+          {
+            '$mapel.desc$': {
+              [Op.substring]: search
+            }
           }
         ],
-        '$soal_kategory->sekolah.id$': { [Op.eq]: req.user.sekolahId }
+        '$mapel.sekolahId$': { [Op.eq]: req.user.sekolahId }
       },
       attributes: [
         'id',
@@ -31,14 +41,8 @@ module.exports.soal = async (req, res) => {
       ],
       include: [
         {
-          model: SoalKategori,
-          attributes: [],
-          include: [
-            {
-              model: Sekolah,
-              attributes: [],
-            }
-          ]
+          model: Mapel,
+          attributes: []
         }
       ],
       order: [
@@ -56,10 +60,20 @@ module.exports.soal = async (req, res) => {
             desc: {
               [Op.substring]: search
             }
+          },
+          {
+            '$mapel.name$': {
+              [Op.substring]: search
+            }
+          },
+          {
+            '$mapel.desc$': {
+              [Op.substring]: search
+            }
           }
         ],
-        '$soal_kategory->sekolah.id$': { [Op.eq]: req.user.sekolahId },
-        '$mapel->users.id$': { [Op.eq]: req.user.id }
+        '$mapel.sekolahId$': { [Op.eq]: req.user.sekolahId },
+        userId: { [Op.eq]: req.user.id }
       },
       attributes: [
         'id',
@@ -68,23 +82,7 @@ module.exports.soal = async (req, res) => {
       include: [
         {
           model: Mapel,
-          attributes: [],
-          include: [
-            {
-              model: User,
-              attributes: []
-            }
-          ]
-        },
-        {
-          model: SoalKategori,
-          attributes: [],
-          include: [
-            {
-              model: Sekolah,
-              attributes: [],
-            }
-          ]
+          attributes: []
         }
       ],
       order: [
@@ -109,17 +107,11 @@ module.exports.ruang = async (req, res) => {
             }
           }
         ],
-        '$sekolah.id$': { [Op.eq]: req.user.sekolahId }
+        sekolahId: { [Op.eq]: req.user.sekolahId }
       },
       attributes: [
         'id',
         ['ruang', 'text']
-      ],
-      include: [
-        {
-          model: Sekolah,
-          attributes: [],
-        }
       ],
       group: 'ruang',
       order: [
@@ -149,7 +141,51 @@ module.exports.mapel = async (req, res) => {
             }
           }
         ],
-        '$sekolah.id$': { [Op.eq]: req.user.sekolahId }
+        sekolahId: { [Op.eq]: req.user.sekolahId }
+      },
+      attributes: [
+        'id',
+        ['name', 'text']
+      ],
+      order: [
+        ['name', 'asc']
+      ]
+    });
+    return res.status(200).json(data);
+  } catch (error) {
+    return sendStatus(res, 500, 'Tidak dapat mengambil data: ' + error.message);
+  }
+}
+
+module.exports.penilai = async (req, res) => {
+  const { search } = req.query;
+  try {
+    const data = await User.findAll({
+      where: {
+        [Op.or]: [
+          {
+            name: {
+              [Op.substring]: search
+            }
+          },
+          {
+            email: {
+              [Op.substring]: search
+            }
+          },
+          {
+            '$mapels.name$': {
+              [Op.substring]: search
+            }
+          },
+          {
+            '$mapels.desc$': {
+              [Op.substring]: search
+            }
+          }
+        ],
+        role: 'PENILAI',
+        sekolahId: { [Op.eq]: req.user.sekolahId }
       },
       attributes: [
         'id',
@@ -157,7 +193,7 @@ module.exports.mapel = async (req, res) => {
       ],
       include: [
         {
-          model: Sekolah,
+          model: Mapel,
           attributes: [],
         }
       ],

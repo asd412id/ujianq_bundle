@@ -40,6 +40,13 @@ module.exports.getJadwals = async (req, res) => {
           group: ['ruang']
         },
         {
+          model: User,
+          attributes: [
+            'id',
+            ['name', 'text']
+          ]
+        },
+        {
           model: Soal,
           attributes: [
             'id',
@@ -71,7 +78,7 @@ module.exports.getJadwals = async (req, res) => {
           }
         ],
         jadwalKategoryId: req.params.jid,
-        '$soals->mapel->users.id$': { [Op.eq]: req.user.id }
+        '$users.id$': { [Op.eq]: req.user.id }
       },
       include: [
         {
@@ -87,20 +94,11 @@ module.exports.getJadwals = async (req, res) => {
           attributes: [
             'id',
             [fn('concat', col('soals.name'), ' ', '(', col('soals.desc'), ')'), 'text']
-          ],
-          include: [
-            {
-              model: Mapel,
-              attributes: [],
-              include: [
-                {
-                  model: User,
-                  attributes: []
-                }
-              ]
-            }
-          ],
-          group: ['id']
+          ]
+        },
+        {
+          model: User,
+          attributes: []
         }
       ],
       order: [
@@ -132,13 +130,14 @@ module.exports.getJadwal = async (req, res) => {
 }
 
 module.exports.store = async (req, res) => {
-  const { name, desc, start, end, duration, soal_count, shuffle, show_score, active, soals, ruangs } = req.body;
+  const { name, desc, start, end, duration, soal_count, shuffle, show_score, active, soals, ruangs, penilais } = req.body;
   if (!name || !start || !end || !duration || !soal_count || !soals.length || !ruangs.length) {
     return sendStatus(res, 406, 'Data yang dikirim tidak lengkap');
   }
 
   const s = [];
   const r = [];
+  const u = [];
   soals.forEach(v => {
     s.push(v.id);
   });
@@ -147,20 +146,16 @@ module.exports.store = async (req, res) => {
     r.push(v.text);
   });
 
+  penilais.forEach(v => {
+    u.push(v.id);
+  });
+
   const tr = await db.transaction();
   try {
     const pesertas = await Peserta.findAll({
       where: {
         ruang: {
           [Op.in]: r
-        }
-      },
-      attributes: ['id']
-    });
-    const dataSoals = await Soal.findAll({
-      where: {
-        id: {
-          [Op.in]: s
         }
       },
       attributes: ['id']
@@ -186,8 +181,9 @@ module.exports.store = async (req, res) => {
         }
       );
       const jadwal = await Jadwal.findByPk(req.params.id);
-      jadwal.setSoals(dataSoals);
+      jadwal.setSoals(s);
       jadwal.setPesertas(pesertas);
+      jadwal.setUsers(u);
     } else {
       const jadwal = await Jadwal.create({
         name,
@@ -202,7 +198,8 @@ module.exports.store = async (req, res) => {
         jadwalKategoryId: req.params.jid,
       });
       jadwal.addPesertas(pesertas);
-      jadwal.addSoals(dataSoals);
+      jadwal.addSoals(s);
+      jadwal.addUsers(u);
     }
     tr.commit();
     return sendStatus(res, 201, 'Data berhasil disimpan');

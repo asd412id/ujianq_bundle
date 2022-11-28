@@ -66,7 +66,7 @@ module.exports.getSoals = async (req, res) => {
           }
         ],
         soalKategoryId: req.params.katid,
-        '$mapel->users.id$': { [Op.eq]: req.user.id }
+        '$user.id$': { [Op.eq]: req.user.id }
       },
       attributes: {
         include: [
@@ -79,14 +79,12 @@ module.exports.getSoals = async (req, res) => {
           attributes: []
         },
         {
+          model: User,
+          attributes: []
+        },
+        {
           model: Mapel,
-          attributes: ['name'],
-          include: [
-            {
-              model: User,
-              attributes: []
-            }
-          ]
+          attributes: ['name']
         }
       ],
       order: [
@@ -125,14 +123,27 @@ module.exports.store = async (req, res) => {
 
   try {
     if (req.params?.id) {
-      await Soal.update({ name, desc, mapelId: mapelId }, {
-        where: {
-          id: req.params.id,
-          soalKategoryId: req.params.katid
-        }
-      });
+      if (req.user.role !== 'OPERATOR') {
+        await Soal.update({ name, desc, mapelId: mapelId, userId: req.user.id }, {
+          where: {
+            id: req.params.id,
+            soalKategoryId: req.params.katid
+          }
+        });
+      } else {
+        await Soal.update({ name, desc, mapelId: mapelId }, {
+          where: {
+            id: req.params.id,
+            soalKategoryId: req.params.katid
+          }
+        });
+      }
     } else {
-      await Soal.create({ name, desc, mapelId: mapelId, soalKategoryId: req.params.katid });
+      if (req.user.role !== 'OPERATOR') {
+        await Soal.create({ name, desc, mapelId: mapelId, userId: req.user.id, soalKategoryId: req.params.katid });
+      } else {
+        await Soal.create({ name, desc, mapelId: mapelId, soalKategoryId: req.params.katid });
+      }
     }
     return sendStatus(res, 201, 'Data berhasil disimpan');
   } catch (error) {

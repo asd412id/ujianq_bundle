@@ -5,6 +5,7 @@ const Sekolah = require('./SekolahModel.js');
 const dotenv = require('dotenv');
 const Jadwal = require('./JadwalModel.js');
 const Mapel = require('./MapelModel.js');
+const Soal = require('./SoalModel.js');
 
 dotenv.config();
 
@@ -54,6 +55,8 @@ const User = db.define('users', {
 Sekolah.hasMany(User, {
   onDelete: 'CASCADE'
 });
+User.hasMany(Soal);
+Soal.belongsTo(User);
 User.belongsToMany(Mapel, { through: 'User_Mapel', timestamps: false });
 Mapel.belongsToMany(User, { through: 'User_Mapel', timestamps: false });
 User.belongsTo(Sekolah);
