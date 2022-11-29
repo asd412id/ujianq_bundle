@@ -44,7 +44,7 @@ module.exports.getSoals = async (req, res) => {
         }
       ],
       order: [
-        ['createdAt', 'asc']
+        ['name', 'asc']
       ],
       distinct: true,
       group: ['id'],
@@ -88,7 +88,7 @@ module.exports.getSoals = async (req, res) => {
         }
       ],
       order: [
-        ['createdAt', 'asc']
+        ['name', 'asc']
       ],
       distinct: true,
       group: ['id'],
