@@ -56,12 +56,12 @@ module.exports.getPeserta = async (req, res) => {
 }
 
 module.exports.store = async (req, res) => {
-  const { name, username, password, ruang } = req.body;
+  const { name, jk, username, password, ruang } = req.body;
 
   const data = {};
 
   try {
-    const checkEmail = await Peserta.findOne({
+    const checkUsername = await Peserta.findOne({
       where: {
         username,
         id: {
@@ -69,7 +69,7 @@ module.exports.store = async (req, res) => {
         }
       }
     });
-    if (checkEmail) {
+    if (checkUsername) {
       return sendStatus(res, 406, `Email "${username}" sudah digunakan`);
     }
   } catch (error) {
@@ -102,6 +102,7 @@ module.exports.store = async (req, res) => {
       }
 
       data.name = name;
+      data.jk = jk;
       data.username = username;
       data.password = password;
       data.ruang = ruang;
@@ -127,6 +128,59 @@ module.exports.destroy = async (req, res) => {
     return sendStatus(res, 202, 'Data berhasil dihapus');
   }
   return sendStatus(res, 500, 'Data gagal dihapus');
+}
+
+module.exports.importExcel = async (req, res) => {
+  const arr = req.body;
+  let waiting = null;
+  let finish = false;
+  let c = 0;
+  if (arr.length) {
+    arr.forEach(async (v, i) => {
+      if (v.username != '' && v.name != '' && v.password != '') {
+        try {
+          const checkUsername = await Peserta.findOne({
+            where: {
+              username: {
+                [Op.eq]: v.username
+              }
+            }
+          });
+          if (checkUsername) {
+            if (checkUsername.sekolahId === req.user.sekolahId) {
+              await Peserta.update(v, { where: { id: checkUsername.id } });
+              c++;
+            }
+          } else {
+            v = { ...v, ...({ sekolahId: req.user.sekolahId }) };
+            await Peserta.create(v);
+            c++
+          }
+          if (i == arr.length - 1) {
+            finish = true;
+          }
+        } catch (error) {
+          console.log(`Error: ${error.message}`);
+          finish = 'error';
+        }
+      }
+    });
+  } else {
+    finish = true;
+  }
+  if (waiting) {
+    clearInterval(waiting);
+  }
+  waiting = setInterval(() => {
+    if (finish && finish !== 'error') {
+      clearInterval(waiting);
+      return sendStatus(res, 201, c + ' data berhasil diimpor');
+    }
+    if (finish === 'error') {
+      clearInterval(waiting);
+      return sendStatus(res, 500, 'Gagal Menyimpan Data');
+    }
+  });
 }
 
 const sendStatus = (res, status, text) => {

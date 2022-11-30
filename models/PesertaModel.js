@@ -19,6 +19,10 @@ const Peserta = db.define('pesertas', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  jk: {
+    type: DataTypes.CHAR(1),
+    defaultValue: 'L'
+  },
   username: {
     type: DataTypes.STRING,
     allowNull: false,
