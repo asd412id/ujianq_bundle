@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const bcryptjs = require("bcryptjs");
 const Sekolah = require("../models/SekolahModel.js");
 const { Sequelize } = require("sequelize");
+const Peserta = require("../models/PesertaModel.js");
+const isEmail = require('is-email');
 
 dotenv.config();
 const { compareSync } = bcryptjs;
@@ -42,8 +44,16 @@ exports.UserRegister = async (req, res) => {
 }
 
 exports.UserLogin = async (req, res) => {
-  const { email, password } = req.body;
-  const datauser = await User.findOne({ where: { email }, include: Sekolah });
+  const { username, password } = req.body;
+  let datauser = null;
+  let typeUser = null;
+  if (isEmail(username)) {
+    datauser = await User.findOne({ where: { email: username } });
+    typeUser = 'admin';
+  } else {
+    datauser = await Peserta.findOne({ where: { username } });
+    typeUser = 'peserta';
+  }
   if (!datauser) {
     return errorLogin(res);
   }
@@ -54,7 +64,8 @@ exports.UserLogin = async (req, res) => {
   }
 
   const data = {
-    _id: datauser.id
+    _id: datauser.id,
+    _type: typeUser
   };
   const token = jwt.sign(data, process.env.JWT_SECRET);
 

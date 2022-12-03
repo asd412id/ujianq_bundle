@@ -1,12 +1,12 @@
 const { existsSync, rmSync } = require("fs");
-const { col, fn, Op, Transaction } = require("sequelize");
-const Mapel = require("../models/MapelModel.js");
+const { col, fn, Op } = require("sequelize");
 const Jadwal = require("../models/JadwalModel.js");
 const { getPagination, getPagingData } = require("../utils/Pagination.js");
 const Peserta = require("../models/PesertaModel.js");
 const Soal = require("../models/SoalModel.js");
 const db = require("../configs/Database.js");
 const User = require("../models/UserModel.js");
+const SoalItem = require("../models/SoalItemModel.js");
 
 module.exports.getJadwals = async (req, res) => {
   const { page, size, search } = req.query;
@@ -14,7 +14,6 @@ module.exports.getJadwals = async (req, res) => {
 
   try {
     const datas = req.user.role === 'OPERATOR' ? await Jadwal.findAndCountAll({
-      subQuery: false,
       where: {
         [Op.or]: [
           {
@@ -34,17 +33,23 @@ module.exports.getJadwals = async (req, res) => {
         {
           model: Peserta,
           attributes: [
-            'id',
+            'username',
+            'name',
             ['ruang', 'text']
           ],
-          group: ['ruang']
+          through: {
+            attributes: []
+          }
         },
         {
           model: User,
           attributes: [
             'id',
             ['name', 'text']
-          ]
+          ],
+          through: {
+            attributes: []
+          }
         },
         {
           model: Soal,
@@ -52,7 +57,9 @@ module.exports.getJadwals = async (req, res) => {
             'id',
             [fn('concat', col('soals.name'), ' ', '(', col('soals.desc'), ')'), 'text']
           ],
-          group: ['id']
+          through: {
+            attributes: []
+          }
         }
       ],
       order: [
@@ -84,21 +91,28 @@ module.exports.getJadwals = async (req, res) => {
         {
           model: Peserta,
           attributes: [
-            'id',
             ['ruang', 'text']
           ],
-          group: ['ruang']
+          through: {
+            attributes: []
+          }
+        },
+        {
+          model: User,
+          attributes: [],
+          through: {
+            attributes: []
+          }
         },
         {
           model: Soal,
           attributes: [
             'id',
             [fn('concat', col('soals.name'), ' ', '(', col('soals.desc'), ')'), 'text']
-          ]
-        },
-        {
-          model: User,
-          attributes: []
+          ],
+          through: {
+            attributes: []
+          }
         }
       ],
       order: [
@@ -142,6 +156,22 @@ module.exports.store = async (req, res) => {
     s.push(v.id);
   });
 
+  const sCount = await SoalItem.count({
+    attributes: ['id'],
+    include: [
+      {
+        model: Soal,
+        required: true,
+        where: {
+          id: {
+            [Op.in]: s
+          }
+        },
+        attributes: []
+      }
+    ]
+  });
+
   ruangs.forEach(v => {
     r.push(v.text);
   });
@@ -168,7 +198,7 @@ module.exports.store = async (req, res) => {
         start,
         end,
         duration,
-        soal_count,
+        soal_count: (soal_count <= sCount ? soal_count : sCount),
         shuffle,
         show_score,
         active
@@ -191,7 +221,7 @@ module.exports.store = async (req, res) => {
         start,
         end,
         duration,
-        soal_count,
+        soal_count: (soal_count <= sCount ? soal_count : sCount),
         shuffle,
         show_score,
         active,

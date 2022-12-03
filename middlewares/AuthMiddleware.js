@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const User = require('../models/UserModel.js');
+const Peserta = require('../models/PesertaModel.js');
+const Sekolah = require('../models/SekolahModel.js');
 
 dotenv.config();
 
@@ -15,7 +17,7 @@ const auth = async (req, res, next) => {
         return accessDenied('Anda tidak memiliki akses', res);
       }
 
-      const user = await User.scope('hidePassword').findByPk(decode._id);
+      const user = decode._type === 'admin' ? await User.scope('hidePassword').findByPk(decode._id, { include: { model: Sekolah, attributes: ['name'] } }) : await Peserta.scope('hidePassword').findByPk(decode._id, { include: { model: Sekolah, attributes: ['name'] } });
       if (!user) {
         if (req.cookies._token) {
           res.cookie('_token', 'null', { maxAge: -1 });

@@ -110,7 +110,7 @@ module.exports.ruang = async (req, res) => {
         sekolahId: { [Op.eq]: req.user.sekolahId }
       },
       attributes: [
-        'id',
+        ['ruang', 'id'],
         ['ruang', 'text']
       ],
       group: 'ruang',

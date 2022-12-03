@@ -4,12 +4,6 @@ const db = require('../configs/Database.js');
 const { DataTypes } = Sequelize;
 
 const PesertaTest = db.define('peserta_tests', {
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    unique: true,
-    primaryKey: true
-  },
   type: {
     type: DataTypes.STRING(3),
     allowNull: false,
@@ -49,6 +43,9 @@ const PesertaTest = db.define('peserta_tests', {
   },
   answer: {
     type: DataTypes.TEXT
+  },
+  jawaban: {
+    type: DataTypes.JSON
   }
 });
 
