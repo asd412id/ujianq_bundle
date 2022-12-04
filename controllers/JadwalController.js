@@ -7,6 +7,8 @@ const Soal = require("../models/SoalModel.js");
 const db = require("../configs/Database.js");
 const User = require("../models/UserModel.js");
 const SoalItem = require("../models/SoalItemModel.js");
+const JadwalKategori = require("../models/JadwalKategoriModel.js");
+const Mapel = require("../models/MapelModel.js");
 
 module.exports.getJadwals = async (req, res) => {
   const { page, size, search } = req.query;
@@ -42,6 +44,13 @@ module.exports.getJadwals = async (req, res) => {
           }
         },
         {
+          model: JadwalKategori,
+          attributes: [
+            'name',
+            'desc',
+          ]
+        },
+        {
           model: User,
           attributes: [
             'id',
@@ -59,7 +68,8 @@ module.exports.getJadwals = async (req, res) => {
           ],
           through: {
             attributes: []
-          }
+          },
+          include: [Mapel]
         }
       ],
       order: [

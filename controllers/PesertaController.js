@@ -132,55 +132,40 @@ module.exports.destroy = async (req, res) => {
 
 module.exports.importExcel = async (req, res) => {
   const arr = req.body;
-  let waiting = null;
-  let finish = false;
   let c = 0;
   if (arr.length) {
-    arr.forEach(async (v, i) => {
+    arr.forEach((v, i) => {
       if (v.username != '' && v.name != '' && v.password != '') {
-        try {
-          const checkUsername = await Peserta.findOne({
-            where: {
-              username: {
-                [Op.eq]: v.username
-              }
+        Peserta.findOne({
+          where: {
+            username: {
+              [Op.eq]: v.username
             }
-          });
+          }
+        }).then(checkUsername => {
           if (checkUsername) {
             if (checkUsername.sekolahId === req.user.sekolahId) {
-              await Peserta.update(v, { where: { id: checkUsername.id } });
+              Peserta.update(v, { where: { id: checkUsername.id } });
               c++;
             }
           } else {
             v = { ...v, ...({ sekolahId: req.user.sekolahId }) };
-            await Peserta.create(v);
+            Peserta.create(v);
             c++
           }
+
           if (i == arr.length - 1) {
-            finish = true;
+            return sendStatus(res, 201, c + ' data berhasil diimpor');
           }
-        } catch (error) {
+        }).catch(error => {
           console.log(`Error: ${error.message}`);
-          finish = 'error';
-        }
+          return sendStatus(res, 500, 'Data gagal diimpor: ' + error.message);
+        });
       }
     });
   } else {
-    finish = true;
+    return sendStatus(res, 200, 'Tidak ada data yang diimpor');
   }
-  if (waiting) {
-    clearInterval(waiting);
-  }
-  waiting = setInterval(() => {
-    if (finish && finish !== 'error') {
-      clearInterval(waiting);
-      return sendStatus(res, 201, c + ' data berhasil diimpor');
-    }
-    if (finish === 'error') {
-      clearInterval(waiting);
-      return sendStatus(res, 500, 'Gagal Menyimpan Data');
-    }
-  });
 }
 
 const sendStatus = (res, status, text) => {

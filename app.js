@@ -15,6 +15,7 @@ const UjianRoutes = require('./routes/UjianRoutes.js');
 const bodyParser = require('body-parser');
 const cookie = require('cookie-parser');
 const dotenv = require('dotenv');
+const fileUpload = require('express-fileupload');
 
 // const cluster = require('cluster');
 // const { cpus } = require('os');
@@ -32,6 +33,7 @@ app.use(cors({
 app.use(cookie());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(fileUpload());
 
 const _API = '/api/v1';
 

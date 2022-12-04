@@ -17,7 +17,7 @@ const auth = async (req, res, next) => {
         return accessDenied('Anda tidak memiliki akses', res);
       }
 
-      const user = decode._type === 'admin' ? await User.scope('hidePassword').findByPk(decode._id, { include: { model: Sekolah, attributes: ['name'] } }) : await Peserta.scope('hidePassword').findByPk(decode._id, { include: { model: Sekolah, attributes: ['name'] } });
+      const user = decode._type === 'admin' ? await User.scope('hidePassword').findByPk(decode._id, { include: { model: Sekolah, attributes: ['id', 'name', 'opt'] } }) : await Peserta.scope('hidePassword').findByPk(decode._id, { include: { model: Sekolah, attributes: ['id', 'name', 'opt'] } });
       if (!user) {
         if (req.cookies._token) {
           res.cookie('_token', 'null', { maxAge: -1 });

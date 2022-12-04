@@ -39,7 +39,10 @@ module.exports.getUjians = async (req, res) => {
         {
           model: PesertaLogin,
           attributes: [],
-          required: true
+          required: true,
+          where: {
+            pesertaId: req.user.id
+          }
         }
       ],
       raw: true

@@ -6,6 +6,6 @@ const { role } = require('../middlewares/RoleMiddleware.js');
 const router = express.Router();
 
 router.get('/', auth, role(['OPERATOR']), getData);
-router.put('/', auth, role(['OPERATOR']), updateSekolah);
+router.post('/', auth, role(['OPERATOR']), updateSekolah);
 
 module.exports = router;
