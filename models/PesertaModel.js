@@ -35,6 +35,10 @@ const Peserta = db.define('pesertas', {
       this.setDataValue('password', hashSync(value, 10));
     }
   },
+  password_raw: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   ruang: {
     type: DataTypes.STRING
   }

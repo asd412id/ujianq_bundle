@@ -105,6 +105,7 @@ module.exports.store = async (req, res) => {
       data.jk = jk;
       data.username = username;
       data.password = password;
+      data.password_raw = password;
       data.ruang = ruang;
       data.sekolahId = req.user.sekolahId;
 
@@ -145,11 +146,11 @@ module.exports.importExcel = async (req, res) => {
         }).then(checkUsername => {
           if (checkUsername) {
             if (checkUsername.sekolahId === req.user.sekolahId) {
-              Peserta.update(v, { where: { id: checkUsername.id } });
+              Peserta.update({ ...v, ...({ password_raw: v.password }) }, { where: { id: checkUsername.id } });
               c++;
             }
           } else {
-            v = { ...v, ...({ sekolahId: req.user.sekolahId }) };
+            v = { ...v, ...({ password_raw: v.password, sekolahId: req.user.sekolahId }) };
             Peserta.create(v);
             c++
           }
@@ -165,6 +166,39 @@ module.exports.importExcel = async (req, res) => {
     });
   } else {
     return sendStatus(res, 200, 'Tidak ada data yang diimpor');
+  }
+}
+
+module.exports.getRuangs = async (req, res) => {
+  try {
+    const ruangs = [...(await Peserta.findAll({
+      where: {
+        sekolahId: req.user.sekolahId
+      },
+      attributes: ['ruang'],
+      group: ['ruang'],
+      raw: true
+    }))].map(e => e.ruang);
+    return res.json(ruangs);
+  } catch (error) {
+    return sendStatus(res, 500, 'Gagal mengambil data');
+  }
+}
+
+module.exports.getPesertasByRuang = async (req, res) => {
+  const { ruang } = req.params;
+  try {
+    const data = await Peserta.findAll({
+      where: {
+        ruang: {
+          [Op.eq]: ruang
+        },
+        sekolahId: req.user.sekolahId
+      }
+    });
+    return res.json(data);
+  } catch (error) {
+    return sendStatus(res, 500, 'Gagal mengambil data');
   }
 }
 

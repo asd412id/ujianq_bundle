@@ -9,6 +9,8 @@ const User = require("../models/UserModel.js");
 const SoalItem = require("../models/SoalItemModel.js");
 const JadwalKategori = require("../models/JadwalKategoriModel.js");
 const Mapel = require("../models/MapelModel.js");
+const PesertaLogin = require("../models/PesertaLoginModel.js");
+const PesertaTest = require("../models/PesertaTestModel.js");
 
 module.exports.getJadwals = async (req, res) => {
   const { page, size, search } = req.query;
@@ -263,6 +265,95 @@ module.exports.destroy = async (req, res) => {
     return sendStatus(res, 202, 'Data berhasil dihapus');
   } catch (error) {
     return sendStatus(res, 500, 'Data gagal dihapus');
+  }
+}
+
+module.exports.getRuangs = async (req, res) => {
+  try {
+    const ruangs = [...(await Peserta.findAll({
+      where: {
+        sekolahId: req.user.sekolahId
+      },
+      attributes: ['ruang'],
+      group: ['ruang'],
+      include: [
+        {
+          model: Jadwal,
+          required: true,
+          where: {
+            id: req.params.id
+          },
+          through: {
+            attributes: []
+          }
+        }
+      ],
+      raw: true
+    }))].map(e => e.ruang);
+    return res.json(ruangs);
+  } catch (error) {
+    return sendStatus(res, 500, 'Gagal mengambil data');
+  }
+}
+
+module.exports.monitor = async (req, res) => {
+  const { search } = req.query;
+  const { id, ruang } = req.params;
+  try {
+    const pesertas = await Peserta.findAll({
+      where: {
+        ruang: ruang,
+        [Op.or]: [
+          {
+            username: {
+              [Op.substring]: search
+            }
+          },
+          {
+            name: {
+              [Op.substring]: search
+            }
+          }
+        ]
+      },
+      include: [
+        {
+          model: Jadwal,
+          required: true,
+          attributes: [],
+          where: {
+            id: id
+          },
+          through: {
+            attributes: []
+          }
+        },
+        {
+          model: PesertaLogin,
+          required: false,
+          where: {
+            jadwalId: id
+          },
+          include: [
+            {
+              model: PesertaTest,
+              required: false,
+              attributes: [
+                [fn('sum', col('nilai')), 'total_nilai']
+              ]
+            }
+          ]
+        }
+      ],
+      order: [
+        ['username', 'asc'],
+        ['name', 'asc']
+      ],
+      group: ['username']
+    });
+    return res.json(pesertas);
+  } catch (error) {
+    return sendStatus(res, 500, 'Gagal mengambil data: ' + error.message);
   }
 }
 

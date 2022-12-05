@@ -59,16 +59,18 @@ module.exports.getSoalItem = async (req, res) => {
 }
 
 const saveAssets = (dir, assets) => {
-  if (!existsSync(`${process.env.APP_ASSETS_PATH}/assets/${dir}`)) {
-    mkdirSync(`${process.env.APP_ASSETS_PATH}/assets/${dir}`);
-  }
   const newAssets = [];
-  assets.forEach(v => {
-    if (v.hasOwnProperty('base64Data')) {
-      writeFileSync(`${process.env.APP_ASSETS_PATH}${v.filename}`, v.base64Data, 'base64');
+  if (assets.length) {
+    if (!existsSync(`${process.env.APP_ASSETS_PATH}/assets/${dir}`)) {
+      mkdirSync(`${process.env.APP_ASSETS_PATH}/assets/${dir}`);
     }
-    newAssets.push({ filename: v.filename });
-  });
+    assets.forEach(v => {
+      if (v.hasOwnProperty('base64Data')) {
+        writeFileSync(`${process.env.APP_ASSETS_PATH}${v.filename}`, v.base64Data, 'base64');
+      }
+      newAssets.push({ filename: v.filename });
+    });
+  }
 
   return newAssets;
 }

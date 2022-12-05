@@ -1,3 +1,4 @@
+const { existsSync, rmdirSync } = require("fs");
 const { col, fn, Op } = require("sequelize");
 const SoalKategori = require("../models/SoalKategoriModel.js");
 const Soal = require("../models/SoalModel.js");
@@ -88,6 +89,18 @@ module.exports.store = async (req, res) => {
 }
 
 module.exports.destroy = async (req, res) => {
+  Soal.findAll({
+    where: {
+      soalKategoryId: req.params.id
+    },
+    attributes: ['id']
+  }).then(soals => {
+    soals.map(v => {
+      if (existsSync(`${process.env.APP_ASSETS_PATH}/assets/${v.id}`)) {
+        rmdirSync(existsSync(`${process.env.APP_ASSETS_PATH}/assets/${v.id}`));
+      }
+    });
+  });
   try {
     await SoalKategori.destroy({
       where: {
