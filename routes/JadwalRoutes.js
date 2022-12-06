@@ -1,5 +1,5 @@
 const express = require('express');
-const { destroy, getJadwal, getJadwals, store, monitor, getRuangs } = require('../controllers/JadwalController.js');
+const { destroy, getJadwal, getJadwals, store, monitor, getRuangs, stopUjian, resetUjian } = require('../controllers/JadwalController.js');
 const auth = require('../middlewares/AuthMiddleware.js');
 const { role } = require('../middlewares/RoleMiddleware.js');
 
@@ -12,5 +12,7 @@ router.put('/:jid/:id', auth, role(['OPERATOR', 'PENILAI']), store);
 router.delete('/:jid/:id', auth, role(['OPERATOR', 'PENILAI']), destroy);
 router.get('/:jid/:id/ruangs', auth, role(['OPERATOR', 'PENILAI']), getRuangs);
 router.get('/:jid/:id/ruangs/:ruang', auth, role(['OPERATOR', 'PENILAI']), monitor);
+router.patch('/:jid/:id/stop/:loginid', auth, role(['OPERATOR', 'PENILAI']), stopUjian);
+router.patch('/:jid/:id/reset/:loginid', auth, role(['OPERATOR', 'PENILAI']), resetUjian);
 
 module.exports = router;

@@ -11,6 +11,7 @@ const SoalItemRoutes = require('./routes/SoalItemRoutes.js');
 const JadwalKategoriRoutes = require('./routes/JadwalKategoriRoutes.js');
 const SearchRoutes = require('./routes/SearchRoutes.js');
 const JadwalRoutes = require('./routes/JadwalRoutes.js');
+const NilaiRoutes = require('./routes/NilaiRoutes.js');
 const UjianRoutes = require('./routes/UjianRoutes.js');
 const bodyParser = require('body-parser');
 const cookie = require('cookie-parser');
@@ -47,6 +48,7 @@ app.use(`${_API}/soals`, SoalRoutes);
 app.use(`${_API}/soal-items`, SoalItemRoutes);
 app.use(`${_API}/jadwal-kategories`, JadwalKategoriRoutes);
 app.use(`${_API}/jadwals`, JadwalRoutes);
+app.use(`${_API}/nilais`, NilaiRoutes);
 
 app.use(`${_API}/ujian`, UjianRoutes);
 

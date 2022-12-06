@@ -21,7 +21,7 @@ const PesertaLogin = db.define('peserta_logins', {
     type: DataTypes.TINYINT,
     defaultValue: 0
   },
-  reset: {
+  checked: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   }

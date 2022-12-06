@@ -357,6 +357,34 @@ module.exports.monitor = async (req, res) => {
   }
 }
 
+module.exports.stopUjian = async (req, res) => {
+  const { loginid } = req.params;
+  try {
+    await PesertaLogin.update({ end: new Date() }, {
+      where: {
+        id: loginid
+      }
+    });
+    return sendStatus(res, 202, 'Ujian berhasil dihentikan');
+  } catch (error) {
+    return sendStatus(res, 500, 'Gagal menghentikan ujian: ' + error.message);
+  }
+}
+
+module.exports.resetUjian = async (req, res) => {
+  const { loginid } = req.params;
+  try {
+    await PesertaLogin.destroy({
+      where: {
+        id: loginid
+      }
+    });
+    return sendStatus(res, 202, 'Ujian berhasil reset');
+  } catch (error) {
+    return sendStatus(res, 500, 'Gagal mereset ujian: ' + error.message);
+  }
+}
+
 const sendStatus = (res, status, text) => {
   return res.status(status).json({ message: text });
 }
