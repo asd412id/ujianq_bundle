@@ -85,7 +85,7 @@ module.exports.getStatus = async (req, res) => {
         sekolahId: req.user.sekolahId
       }
     });
-    const soal = await Soal.count({
+    const soal = req.user.role === 'OPERATOR' ? await Soal.count({
       include: [
         {
           model: SoalKategori,
@@ -96,14 +96,52 @@ module.exports.getStatus = async (req, res) => {
           attributes: []
         }
       ]
+    }) : await Soal.count({
+      include: [
+        {
+          model: SoalKategori,
+          required: true,
+          where: {
+            sekolahId: req.user.sekolahId
+          },
+          attributes: []
+        },
+        {
+          model: User,
+          required: true,
+          where: {
+            id: req.user.id
+          },
+          attributes: []
+        }
+      ]
     });
-    const jadwal = await Jadwal.count({
+    const jadwal = req.user.role === 'OPERATOR' ? await Jadwal.count({
       include: [
         {
           model: JadwalKategori,
           required: true,
           where: {
             sekolahId: req.user.sekolahId
+          },
+          attributes: []
+        }
+      ]
+    }) : await Jadwal.count({
+      include: [
+        {
+          model: JadwalKategori,
+          required: true,
+          where: {
+            sekolahId: req.user.sekolahId
+          },
+          attributes: []
+        },
+        {
+          model: User,
+          required: true,
+          where: {
+            id: req.user.id
           },
           attributes: []
         }
