@@ -1,6 +1,13 @@
 const Sekolah = require("../models/SekolahModel.js");
 const { extname } = require('path');
 const { existsSync, rmSync, mkdirSync } = require("fs");
+const Mapel = require("../models/MapelModel.js");
+const User = require("../models/UserModel.js");
+const Peserta = require("../models/PesertaModel.js");
+const Soal = require("../models/SoalModel.js");
+const SoalKategori = require("../models/SoalKategoriModel.js");
+const JadwalKategori = require("../models/JadwalKategoriModel.js");
+const Jadwal = require("../models/JadwalModel.js");
 require('dotenv').config();
 
 
@@ -58,4 +65,53 @@ module.exports.updateSekolah = async (req, res) => {
     return res.status(202).json({ message: 'Data berhasil disimpan' });
   }
   return res.status(500).json({ message: 'Data gagal disimpan' });
+}
+
+module.exports.getStatus = async (req, res) => {
+  try {
+    const mapel = await Mapel.count({
+      where: {
+        sekolahId: req.user.sekolahId
+      }
+    });
+    const penilai = await User.count({
+      where: {
+        role: 'PENILAI',
+        sekolahId: req.user.sekolahId
+      }
+    });
+    const peserta = await Peserta.count({
+      where: {
+        sekolahId: req.user.sekolahId
+      }
+    });
+    const soal = await Soal.count({
+      include: [
+        {
+          model: SoalKategori,
+          required: true,
+          where: {
+            sekolahId: req.user.sekolahId
+          },
+          attributes: []
+        }
+      ]
+    });
+    const jadwal = await Jadwal.count({
+      include: [
+        {
+          model: JadwalKategori,
+          required: true,
+          where: {
+            sekolahId: req.user.sekolahId
+          },
+          attributes: []
+        }
+      ]
+    });
+
+    return res.json({ mapel, penilai, peserta, soal, jadwal });
+  } catch (error) {
+    res.status(500).json({ message: 'Tidak dapat memuat data: ' + error.message });
+  }
 }
