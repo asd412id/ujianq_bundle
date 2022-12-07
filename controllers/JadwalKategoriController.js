@@ -29,10 +29,8 @@ exports.getJadwalKategoris = async (req, res) => {
       include: [
         {
           model: Jadwal,
-          separate: true,
-          attributes: [
-            [fn('count', col('jadwals.id')), 'count']
-          ]
+          required: false,
+          attributes: ['id']
         },
         {
           model: SoalKategori,
