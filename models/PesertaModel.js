@@ -41,6 +41,9 @@ const Peserta = db.define('pesertas', {
   },
   ruang: {
     type: DataTypes.STRING
+  },
+  token: {
+    type: DataTypes.STRING
   }
 }, {
   scopes: {

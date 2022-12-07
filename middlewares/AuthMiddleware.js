@@ -25,6 +25,15 @@ const auth = async (req, res, next) => {
         return accessDenied('Anda tidak memiliki akses', res);
       }
 
+      if (decode._type === 'peserta') {
+        if (decode._token !== user.token) {
+          if (req.cookies._token) {
+            res.cookie('_token', 'null', { maxAge: -1 });
+          }
+          return accessDenied('Anda sudah login di tempat lain', res);
+        }
+      }
+
       req.user = user;
     } catch (error) {
       return accessDenied('Anda tidak memiliki akses', res);

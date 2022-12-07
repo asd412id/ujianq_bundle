@@ -6,6 +6,7 @@ const Sekolah = require("../models/SekolahModel.js");
 const { Sequelize } = require("sequelize");
 const Peserta = require("../models/PesertaModel.js");
 const isEmail = require('is-email');
+const randomstring = require('randomstring');
 
 dotenv.config();
 const { compareSync } = bcryptjs;
@@ -47,11 +48,19 @@ exports.UserLogin = async (req, res) => {
   const { username, password } = req.body;
   let datauser = null;
   let typeUser = null;
+  let __token = null;
+
   if (isEmail(username)) {
     datauser = await User.findOne({ where: { email: username } });
     typeUser = 'admin';
   } else {
     datauser = await Peserta.findOne({ where: { username } });
+    if (datauser.token !== null) {
+      if (req.cookies._token) {
+        res.cookie('_token', 'null', { maxAge: -1 });
+      };
+      return res.status(401).json({ message: 'Anda sudah login di tempat lain' });
+    }
     typeUser = 'peserta';
   }
   if (!datauser) {
@@ -63,9 +72,15 @@ exports.UserLogin = async (req, res) => {
     return errorLogin(res);
   }
 
+  if (typeUser === 'peserta') {
+    __token = randomstring.generate(40);
+    datauser.update({ token: __token });
+  }
+
   const data = {
     _id: datauser.id,
-    _type: typeUser
+    _type: typeUser,
+    _token: __token
   };
   const token = jwt.sign(data, process.env.JWT_SECRET);
 
@@ -76,6 +91,9 @@ exports.UserLogin = async (req, res) => {
 }
 
 exports.UserLogout = async (req, res) => {
+  if (req.user.token) {
+    req.user.update({ token: null });
+  }
   if (req.cookies._token) {
     res.cookie('_token', 'null', { maxAge: -1 });
   }

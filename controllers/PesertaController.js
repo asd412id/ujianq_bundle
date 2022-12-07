@@ -202,6 +202,19 @@ module.exports.getPesertasByRuang = async (req, res) => {
   }
 }
 
+module.exports.resetLogin = async (req, res) => {
+  try {
+    const peserta = await Peserta.findByPk(req.params.id);
+    if (!peserta) {
+      return sendStatus(res, 404, 'Data peserta tidak ditemukan');
+    }
+    peserta.update({ token: null });
+    return sendStatus(res, 202, 'Data login ' + peserta.name + ' berhasil direset');
+  } catch (error) {
+    return sendStatus(res, 500, 'Gagal mengambil data: ' + error.message);
+  }
+}
+
 const sendStatus = (res, status, text) => {
   return res.status(status).json({ message: text });
 }
