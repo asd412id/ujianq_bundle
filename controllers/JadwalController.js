@@ -103,6 +103,8 @@ module.exports.getJadwals = async (req, res) => {
         {
           model: Peserta,
           attributes: [
+            'username',
+            'name',
             ['ruang', 'text']
           ],
           through: {
@@ -110,8 +112,18 @@ module.exports.getJadwals = async (req, res) => {
           }
         },
         {
+          model: JadwalKategori,
+          attributes: [
+            'name',
+            'desc',
+          ]
+        },
+        {
           model: User,
-          attributes: [],
+          attributes: [
+            'id',
+            ['name', 'text']
+          ],
           through: {
             attributes: []
           }
@@ -124,7 +136,8 @@ module.exports.getJadwals = async (req, res) => {
           ],
           through: {
             attributes: []
-          }
+          },
+          include: [Mapel]
         }
       ],
       order: [
