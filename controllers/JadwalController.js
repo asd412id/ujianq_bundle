@@ -266,9 +266,6 @@ module.exports.store = async (req, res) => {
 
 module.exports.destroy = async (req, res) => {
   try {
-    if (existsSync(`${process.env.APP_ASSETS_PATH}/assets/${req.params.id}`)) {
-      rmSync(`${process.env.APP_ASSETS_PATH}/assets/${req.params.id}`, { recursive: true, force: true });
-    }
     await Jadwal.destroy({
       where: {
         id: req.params.id,

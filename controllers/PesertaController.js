@@ -119,12 +119,17 @@ module.exports.store = async (req, res) => {
 }
 
 module.exports.destroy = async (req, res) => {
-  const destroy = await Peserta.destroy({
-    where: {
-      id: req.params.id,
-      sekolahId: req.user.sekolahId
-    }
-  });
+  let destroy = null;
+  if (req.params.id === 'all') {
+    destroy = await Peserta.destroy({ where: {} });
+  } else {
+    destroy = await Peserta.destroy({
+      where: {
+        id: req.params.id,
+        sekolahId: req.user.sekolahId
+      }
+    });
+  }
   if (destroy) {
     return sendStatus(res, 202, 'Data berhasil dihapus');
   }
