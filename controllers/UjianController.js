@@ -6,10 +6,8 @@ const Peserta = require("../models/PesertaModel.js");
 const PesertaTest = require("../models/PesertaTestModel.js");
 const SoalItem = require("../models/SoalItemModel.js");
 const Soal = require("../models/SoalModel.js");
-const { shuffle } = require("../utils/Helpers.js");
 const { getPagination, getPagingData } = require("../utils/Pagination.js");
-const stripTags = require('striptags');
-const stringSimilarity = require('string-similarity');
+const { Worker } = require('worker_threads');
 
 module.exports.getUjians = async (req, res) => {
   const { page, size } = req.query;
@@ -146,66 +144,53 @@ module.exports.getTes = async (req, res) => {
       }
     );
     if (soals.count) {
-      const items = [];
-      soals.rows.forEach((v, i) => {
-        if (v.shuffle) {
-          v.options = [...(shuffle(v.options))];
-          v.relations = [...(shuffle(v.relations))];
-        }
-        const itemdata = {
-          type: v.type,
-          num: v.num,
-          text: v.text,
-          options: v.options,
-          labels: v.labels,
-          corrects: v.corrects,
-          relations: v.relations,
-          answer: v.answer,
-          bobot: v.bobot,
-          soalItemId: v.id
-        };
-        items.push(itemdata);
+      const worker = new Worker('./workers/PupulateSoal.js', { workerData: { rows: JSON.stringify(soals.rows) } });
+      worker.on('message', async (items) => {
+        const login = await PesertaLogin.create({
+          start: new Date(),
+          jadwalId: jadwal.id,
+          pesertaId: req.user.id,
+          peserta_tests: items
+        }, {
+          include: [PesertaTest]
+        });
+        const plogin = await PesertaLogin.findByPk(login.id, {
+          include: [
+            {
+              model: Jadwal,
+              attributes: [
+                'name',
+                'start',
+                'end',
+                'duration',
+                'show_score',
+              ]
+            },
+            {
+              model: PesertaTest,
+              attributes: [
+                'id',
+                'type',
+                'text',
+                'options',
+                'labels',
+                'relations',
+                'jawaban'
+              ]
+            }
+          ],
+          order: [
+            [PesertaTest, 'id', 'asc']
+          ]
+        });
+        return res.json(plogin);
       });
-      const login = await PesertaLogin.create({
-        start: new Date(),
-        jadwalId: jadwal.id,
-        pesertaId: req.user.id,
-        peserta_tests: items
-      }, {
-        include: [PesertaTest]
-      });
-      const plogin = await PesertaLogin.findByPk(login.id, {
-        include: [
-          {
-            model: Jadwal,
-            attributes: [
-              'name',
-              'start',
-              'end',
-              'duration',
-              'show_score',
-            ]
-          },
-          {
-            model: PesertaTest,
-            attributes: [
-              'id',
-              'type',
-              'text',
-              'options',
-              'labels',
-              'relations',
-              'jawaban'
-            ]
-          }
-        ],
-        order: [
-          [PesertaTest, 'id', 'asc']
-        ]
-      });
-      return res.json(plogin);
+      worker.on('error', error => {
+        return sendStatus(res, 500, 'Tidak dapat mengambil data worker: ' + error);
+      })
+    } else {
+      return sendStatus(res, 404, 'Soal tidak tersedia pada jadwal');
     }
-    return sendStatus(res, 404, 'Soal tidak tersedia pada jadwal');
   } catch (error) {
     return sendStatus(res, 500, 'Tidak dapat mengambil data: ' + error.message);
   }
@@ -214,34 +199,13 @@ module.exports.getTes = async (req, res) => {
 module.exports.saveJawaban = (req, res) => {
   const data = req.body;
   const { loginId } = req.params;
-  Object.keys(data).forEach(i => {
-    const v = data[i];
-    PesertaTest.findByPk(i)
-      .then(test => {
-        let nilai = 0;
-        let benar = 0;
-        if (test.type === 'PG' || test.type === 'PGK' || test.type === 'BS' || test.type === 'JD') {
-          Object.keys(test.corrects).forEach(k => {
-            if (test.corrects[k] === v.jawaban.corrects[k]) {
-              benar++;
-            }
-          })
-          nilai = benar / Object.keys(test.corrects).length * test.bobot;
-          if (test.type === 'PG' && nilai != test.bobot) {
-            nilai = 0;
-          }
-        } else if (test.type === 'IS' || test.type === 'U') {
-          const n = stringSimilarity.compareTwoStrings(stripTags(v.jawaban.answer).toLocaleLowerCase(), stripTags(test.answer).toLocaleLowerCase());
-          nilai = n * test.bobot;
-        }
-        test.update({ nilai: parseFloat(nilai).toFixed(2), jawaban: v.jawaban });
-        PesertaLogin.findByPk(loginId)
-          .then(login => {
-            login.update({ current_number: v.num });
-          });
-      });
+  const worker = new Worker('./workers/SaveJawaban.js', { workerData: { data, loginId } });
+  worker.on('message', () => {
+    return sendStatus(res, 202, 'Data berhasil disimpan');
   });
-  return sendStatus(res, 202, 'Data berhasil disimpan');
+  worker.on('error', (error) => {
+    return sendStatus(res, 500, 'Data gagal disimpan: ' + error);
+  })
 }
 
 module.exports.stopUjian = (req, res) => {

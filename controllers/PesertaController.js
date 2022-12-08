@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const Peserta = require("../models/PesertaModel.js");
 const { getPagination, getPagingData } = require("../utils/Pagination.js");
+const { Worker } = require('worker_threads');
 
 module.exports.getPesertas = async (req, res) => {
   const { page, size, search } = req.query;
@@ -138,37 +139,18 @@ module.exports.destroy = async (req, res) => {
 
 module.exports.importExcel = async (req, res) => {
   const arr = req.body;
-  let c = 0;
   if (arr.length) {
-    arr.forEach((v, i) => {
-      if (v.username != '' && v.name != '' && v.password != '') {
-        Peserta.findOne({
-          where: {
-            username: {
-              [Op.eq]: v.username
-            }
-          }
-        }).then(checkUsername => {
-          if (checkUsername) {
-            if (checkUsername.sekolahId === req.user.sekolahId) {
-              Peserta.update({ ...v, ...({ password_raw: v.password }) }, { where: { id: checkUsername.id } });
-              c++;
-            }
-          } else {
-            v = { ...v, ...({ password_raw: v.password, sekolahId: req.user.sekolahId }) };
-            Peserta.create(v);
-            c++
-          }
-
-          if (i == arr.length - 1) {
-            return sendStatus(res, 201, c + ' data berhasil diimpor');
-          }
-        }).catch(error => {
-          console.log(`Error: ${error.message}`);
-          return sendStatus(res, 500, 'Data gagal diimpor: ' + error.message);
-        });
+    const worker = new Worker('./workers/ImportPeserta.js', { workerData: { arr, sekolahId: req.user.sekolahId } });
+    worker.on('message', (data) => {
+      if (data.status === 'success') {
+        return sendStatus(res, 201, data.data + ' data berhasil diimpor');
+      } else {
+        return sendStatus(res, 500, 'Data gagal diimpor: ' + data.message);
       }
-    });
+    })
+    worker.on('error', (error) => {
+      return sendStatus(res, 500, 'Data gagal diimpor: ' + error);
+    })
   } else {
     return sendStatus(res, 200, 'Tidak ada data yang diimpor');
   }

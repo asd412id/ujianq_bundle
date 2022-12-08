@@ -174,12 +174,9 @@ module.exports.store = async (req, res) => {
     return sendStatus(res, 406, 'Data yang dikirim tidak lengkap');
   }
 
-  const s = [];
-  const r = [];
-  const u = [];
-  soals.forEach(v => {
-    s.push(v.id);
-  });
+  const s = soals.map(v => v.id);
+  const r = ruangs.map(v => v.text);
+  const u = penilais.map(v => v.id);
 
   const sCount = await SoalItem.count({
     attributes: ['id'],
@@ -195,14 +192,6 @@ module.exports.store = async (req, res) => {
         attributes: []
       }
     ]
-  });
-
-  ruangs.forEach(v => {
-    r.push(v.text);
-  });
-
-  penilais.forEach(v => {
-    u.push(v.id);
   });
 
   const tr = await db.transaction();
@@ -330,7 +319,7 @@ module.exports.monitor = async (req, res) => {
         {
           model: Jadwal,
           required: true,
-          attributes: [],
+          attributes: ['duration'],
           where: {
             id: id
           },
