@@ -20,7 +20,13 @@ const Sekolah = db.define('sekolahs', {
     allowNull: false,
   },
   opt: {
-    type: DataTypes.JSON
+    type: DataTypes.TEXT,
+    get: function () {
+      return JSON.parse(this.getDataValue('opt'));
+    },
+    set: function (value) {
+      this.setDataValue('opt', JSON.stringify(value));
+    }
   }
 });
 

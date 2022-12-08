@@ -32,19 +32,49 @@ const SoalItem = db.define('soal_items', {
     defaultValue: 0
   },
   options: {
-    type: DataTypes.JSON
+    type: DataTypes.TEXT,
+    get: function () {
+      return JSON.parse(this.getDataValue('options'));
+    },
+    set: function (value) {
+      this.setDataValue('options', JSON.stringify(value));
+    }
   },
   corrects: {
-    type: DataTypes.JSON
+    type: DataTypes.TEXT,
+    get: function () {
+      return JSON.parse(this.getDataValue('corrects'));
+    },
+    set: function (value) {
+      this.setDataValue('corrects', JSON.stringify(value));
+    }
   },
   relations: {
-    type: DataTypes.JSON
+    type: DataTypes.TEXT,
+    get: function () {
+      return JSON.parse(this.getDataValue('relations'));
+    },
+    set: function (value) {
+      this.setDataValue('relations', JSON.stringify(value));
+    }
   },
   labels: {
-    type: DataTypes.JSON
+    type: DataTypes.TEXT,
+    get: function () {
+      return JSON.parse(this.getDataValue('labels'));
+    },
+    set: function (value) {
+      this.setDataValue('labels', JSON.stringify(value));
+    }
   },
   assets: {
-    type: DataTypes.JSON
+    type: DataTypes.TEXT,
+    get: function () {
+      return JSON.parse(this.getDataValue('assets'));
+    },
+    set: function (value) {
+      this.setDataValue('assets', JSON.stringify(value));
+    }
   },
   shuffle: {
     type: DataTypes.BOOLEAN,
