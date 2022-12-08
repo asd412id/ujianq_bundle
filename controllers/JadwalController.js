@@ -378,7 +378,7 @@ module.exports.resetUjian = async (req, res) => {
         id: loginid
       }
     });
-    return sendStatus(res, 202, 'Ujian berhasil reset');
+    return sendStatus(res, 202, 'Ujian berhasil direset');
   } catch (error) {
     return sendStatus(res, 500, 'Gagal mereset ujian: ' + error.message);
   }
