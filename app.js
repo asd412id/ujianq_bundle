@@ -27,8 +27,8 @@ app.use(cors({
   origin: [process.env.APP_ORIGINS?.split(',')]
 }));
 app.use(cookie());
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb', parameterLimit: 50000 }));
 app.use(fileUpload());
 
 const _API = '/api/v1';
