@@ -33,6 +33,15 @@ app.use(fileUpload());
 
 const _API = '/api/v1';
 
+app.get(`${_API}/setupdb`, async (req, res) => {
+  try {
+    await db.sync();
+    return res.json({ message: 'Pengaturan database selesai' });
+  } catch (error) {
+    return res.json({ message: 'Pengaturan database gagal: ' + error.message });
+  }
+});
+
 app.use(_API, UserRoutes);
 app.use(`${_API}/sekolah`, SekolahRoutes);
 app.use(`${_API}/mapels`, MapelRoutes);
@@ -46,8 +55,6 @@ app.use(`${_API}/jadwals`, JadwalRoutes);
 app.use(`${_API}/nilais`, NilaiRoutes);
 app.use(`${_API}/ujian`, UjianRoutes);
 app.use(`${_API}/search`, SearchRoutes);
-
-db.sync();
 
 if (process.env.APP_ENV !== 'production') {
   app.listen(PORT, () => {
