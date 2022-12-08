@@ -34,6 +34,8 @@ const auth = async (req, res, next) => {
         }
       }
 
+      res.cookie('_token', token, { maxAge: 24 * 60 * 60 * 1000 });
+
       req.user = user;
     } catch (error) {
       return accessDenied('Anda tidak memiliki akses', res);

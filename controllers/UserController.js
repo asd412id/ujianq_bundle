@@ -84,7 +84,7 @@ exports.UserLogin = async (req, res) => {
   };
   const token = jwt.sign(data, process.env.JWT_SECRET);
 
-  return res.status(200).cookie('_token', token, { maxAge: 3 * 30 * 24 * 60 * 60 * 1000 }).json({
+  return res.status(200).cookie('_token', token, { maxAge: 24 * 60 * 60 * 1000 }).json({
     message: 'Login Berhasil',
     token: token
   });
