@@ -42,7 +42,3 @@ SoalKategori.belongsTo(Sekolah);
 JadwalKategori.belongsTo(Sekolah);
 
 module.exports = Sekolah;
-
-(async () => {
-  await db.sync();
-})();

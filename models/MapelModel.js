@@ -24,7 +24,3 @@ Mapel.hasMany(Soal);
 Soal.belongsTo(Mapel);
 
 module.exports = Mapel;
-
-(async () => {
-  await db.sync();
-})();

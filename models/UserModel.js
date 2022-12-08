@@ -64,7 +64,3 @@ User.belongsToMany(Jadwal, { through: 'User_Jadwal', timestamps: false });
 Jadwal.belongsToMany(User, { through: 'User_Jadwal', timestamps: false });
 
 module.exports = User;
-
-(async () => {
-  await db.sync();
-})();

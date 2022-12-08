@@ -52,7 +52,3 @@ Jadwal.belongsToMany(Soal, { through: 'Jadwal_Soal', timestamps: false });
 Soal.belongsToMany(Jadwal, { through: 'Jadwal_Soal', timestamps: false });
 
 module.exports = Jadwal;
-
-(async () => {
-  await db.sync();
-})();

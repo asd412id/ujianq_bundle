@@ -29,7 +29,3 @@ SoalKategori.belongsToMany(JadwalKategori, { as: 'jadwal_kategories', through: '
 JadwalKategori.belongsToMany(SoalKategori, { as: 'soal_kategories', through: 'JadwalKategori_SoalKategori', timestamps: false });
 
 module.exports = SoalKategori;
-
-(async () => {
-  await db.sync();
-})();

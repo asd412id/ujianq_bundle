@@ -26,7 +26,3 @@ JadwalKategori.hasMany(Jadwal, {
 Jadwal.belongsTo(JadwalKategori);
 
 module.exports = JadwalKategori;
-
-(async () => {
-  await db.sync();
-})();

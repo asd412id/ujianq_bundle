@@ -63,7 +63,3 @@ Peserta.hasMany(PesertaLogin, {
 PesertaLogin.belongsTo(Peserta);
 
 module.exports = Peserta;
-
-(async () => {
-  await db.sync();
-})();

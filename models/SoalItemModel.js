@@ -60,7 +60,3 @@ SoalItem.hasMany(PesertaTest);
 PesertaTest.belongsTo(SoalItem);
 
 module.exports = SoalItem;
-
-(async () => {
-  await db.sync();
-})();

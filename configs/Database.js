@@ -11,7 +11,7 @@ const db = new Sequelize(process.env.DB_DATABASE, process.env.DB_USERNAME, proce
     typeCast: true
   },
   timezone: process.env.TIMEZONE || 'Asia/Makassar',
-  logging: false
+  // logging: false
 });
 
 module.exports = db;

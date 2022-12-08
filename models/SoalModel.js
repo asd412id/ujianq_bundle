@@ -26,7 +26,3 @@ Soal.hasMany(SoalItem, {
 SoalItem.belongsTo(Soal);
 
 module.exports = Soal;
-
-(async () => {
-  await db.sync();
-})();

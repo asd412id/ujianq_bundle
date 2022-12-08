@@ -50,7 +50,3 @@ const PesertaTest = db.define('peserta_tests', {
 });
 
 module.exports = PesertaTest;
-
-(async () => {
-  await db.sync();
-})();
