@@ -33,7 +33,7 @@ app.use(fileUpload());
 
 const _API = '/api/v1';
 
-app.get(`${_API}/setupdb`, async (req, res) => {
+app.post(`${_API}/setupdb`, async (req, res) => {
   try {
     await db.sync();
     return res.json({ message: 'Pengaturan database selesai' });
