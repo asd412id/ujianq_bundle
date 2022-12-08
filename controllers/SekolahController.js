@@ -30,6 +30,8 @@ module.exports.updateSekolah = async (req, res) => {
     return res.status(406).json({ message: 'Data sekolah tidak ditemukan' });
   }
 
+  jopt['kop'] = sekolah.opt?.kop;
+
   if (req.files && Object.keys(req.files).length) {
     const kop = req.files.kop;
 
