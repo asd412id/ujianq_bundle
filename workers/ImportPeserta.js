@@ -16,10 +16,10 @@ data.arr.forEach(async (v, i) => {
       });
       if (checkUsername) {
         if (checkUsername.sekolahId === data.sekolahId) {
-          await Peserta.update({ ...v, ...({ password_raw: v.password }) }, { where: { id: checkUsername.id } });
+          await Peserta.update({ ...v, ...({ password_raw: v.password, token: null }) }, { where: { id: checkUsername.id } });
         }
       } else {
-        await Peserta.create({ ...v, ...({ password_raw: v.password, token: null, sekolahId: data.sekolahId }) }, {
+        await Peserta.create({ ...v, ...({ password_raw: v.password, sekolahId: data.sekolahId }) }, {
           include: [Sekolah]
         });
       }
