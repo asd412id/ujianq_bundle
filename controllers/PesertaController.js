@@ -30,8 +30,8 @@ module.exports.getPesertas = async (req, res) => {
         sekolahId: req.user.sekolahId
       },
       order: [
-        ['name', 'asc'],
-        ['username', 'asc']
+        ['username', 'asc'],
+        ['name', 'asc']
       ],
       limit: limit,
       offset: offset,
@@ -142,13 +142,14 @@ module.exports.importExcel = async (req, res) => {
   if (arr.length) {
     const worker = new Worker('./workers/ImportPeserta.js', {
       resourceLimits: {
-        maxOldGenerationSizeMb: 200
+        maxOldGenerationSizeMb: 100
       },
-      workerData: {
+      workerData: JSON.stringify({
         arr, sekolahId: req.user.sekolahId
-      }
+      })
     });
-    worker.on('message', (data) => {
+    worker.on('message', (r) => {
+      const data = JSON.parse(r);
       if (data.status === 'success') {
         return sendStatus(res, 201, data.data + ' data berhasil diimpor');
       } else {
