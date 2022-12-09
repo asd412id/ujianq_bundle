@@ -140,7 +140,14 @@ module.exports.destroy = async (req, res) => {
 module.exports.importExcel = async (req, res) => {
   const arr = req.body;
   if (arr.length) {
-    const worker = new Worker('./workers/ImportPeserta.js', { workerData: { arr, sekolahId: req.user.sekolahId } });
+    const worker = new Worker('./workers/ImportPeserta.js', {
+      resourceLimits: {
+        maxOldGenerationSizeMb: 200
+      },
+      workerData: {
+        arr, sekolahId: req.user.sekolahId
+      }
+    });
     worker.on('message', (data) => {
       if (data.status === 'success') {
         return sendStatus(res, 201, data.data + ' data berhasil diimpor');

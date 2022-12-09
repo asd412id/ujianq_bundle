@@ -55,12 +55,6 @@ exports.UserLogin = async (req, res) => {
     typeUser = 'admin';
   } else {
     datauser = await Peserta.findOne({ where: { username } });
-    if (datauser.token !== null) {
-      if (req.cookies._token) {
-        res.cookie('_token', 'null', { maxAge: -1 });
-      };
-      return res.status(401).json({ message: 'Anda sudah login di tempat lain' });
-    }
     typeUser = 'peserta';
   }
   if (!datauser) {
@@ -73,6 +67,12 @@ exports.UserLogin = async (req, res) => {
   }
 
   if (typeUser === 'peserta') {
+    if (datauser?.token !== null) {
+      if (req.cookies._token) {
+        res.cookie('_token', 'null', { maxAge: -1 });
+      };
+      return res.status(401).json({ message: 'Anda sudah login di tempat lain' });
+    }
     __token = randomstring.generate(40);
     datauser.update({ token: __token });
   }
