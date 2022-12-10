@@ -32,6 +32,16 @@ module.exports.tesMiddleware = async (req, res, next) => {
     if (!login) {
       return res.status(406).json({ message: 'Ujian telah selesai' });
     }
+    const start = new Date(login.start);
+    const duration = login.jadwal.duration;
+    const total = new Date(start.getTime() + (duration * 60 * 1000));
+    const now = new Date();
+
+    if (total.getTime() < now.getTime()) {
+      login.update({ end: now });
+      return res.status(406).json({ message: 'Ujian telah selesai' });
+    }
+
     next();
   } catch (error) {
     return res.status(500).json({ message: 'Tidak dapat memuat data' });
