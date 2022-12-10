@@ -5,7 +5,7 @@ const PesertaTest = require("../models/PesertaTestModel");
 
 module.exports.tesMiddleware = async (req, res, next) => {
   try {
-    const login = await PesertaLogin.count({
+    const login = await PesertaLogin.findOne({
       where: {
         pesertaId: req.user.id,
         end: {
