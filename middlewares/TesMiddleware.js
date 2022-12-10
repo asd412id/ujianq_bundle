@@ -44,6 +44,6 @@ module.exports.tesMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    return res.status(500).json({ message: 'Tidak dapat memuat data' });
+    return res.status(500).json({ message: 'Tidak dapat memuat data: ' + error.message });
   }
 }
