@@ -78,11 +78,11 @@ module.exports.getJadwals = async (req, res) => {
         ['active', 'desc'],
         ['start', 'asc']
       ],
+      group: ['id'],
       distinct: true,
       limit: limit,
       offset: offset
     }) : await Jadwal.findAndCountAll({
-      subQuery: false,
       where: {
         [Op.or]: [
           {
@@ -97,7 +97,6 @@ module.exports.getJadwals = async (req, res) => {
           }
         ],
         jadwalKategoryId: req.params.jid,
-        '$users.id$': { [Op.eq]: req.user.id }
       },
       include: [
         {
@@ -120,10 +119,16 @@ module.exports.getJadwals = async (req, res) => {
         },
         {
           model: User,
+          required: true,
           attributes: [
             'id',
             ['name', 'text']
           ],
+          where: {
+            id: {
+              [Op.eq]: req.user.id
+            }
+          },
           through: {
             attributes: []
           }
@@ -144,6 +149,7 @@ module.exports.getJadwals = async (req, res) => {
         ['active', 'desc'],
         ['start', 'asc']
       ],
+      group: ['id'],
       distinct: true,
       limit: limit,
       offset: offset
@@ -227,7 +233,9 @@ module.exports.store = async (req, res) => {
       const jadwal = await Jadwal.findByPk(req.params.id);
       jadwal.setSoals(s);
       jadwal.setPesertas(pesertas);
-      jadwal.setUsers(u);
+      if (req.user.role === 'OPERATOR') {
+        jadwal.setUsers(u);
+      }
     } else {
       const jadwal = await Jadwal.create({
         name,
