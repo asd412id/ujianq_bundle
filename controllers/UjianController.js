@@ -88,6 +88,42 @@ module.exports.getUjians = async (req, res) => {
   }
 }
 
+const populateSoal = (data) => {
+  return new Promise(resolve => {
+    const items = [];
+    const loop = (i) => {
+      const v = data[i];
+      if (v.shuffle) {
+        v.options = [...(shuffle(v.options))];
+        v.relations = [...(shuffle(v.relations))];
+      }
+      const itemdata = {
+        type: v.type,
+        num: v.num,
+        text: v.text,
+        options: v.options,
+        labels: v.labels,
+        corrects: v.corrects,
+        relations: v.relations,
+        answer: v.answer,
+        bobot: v.bobot,
+        soalItemId: v.id
+      };
+      items.push(itemdata);
+
+      if (i < data.length - 1) {
+        setTimeout(() => {
+          loop(i + 1);
+        }, 0);
+      } else {
+        resolve(items);
+        return;
+      }
+    }
+    loop(0);
+  });
+}
+
 module.exports.getTes = async (req, res) => {
   const { id } = req.body;
   try {
@@ -145,64 +181,47 @@ module.exports.getTes = async (req, res) => {
       }
     );
     if (soals.count) {
-      const items = [];
-      soals.rows.forEach(v => {
-        if (v.shuffle) {
-          v.options = [...(shuffle(v.options))];
-          v.relations = [...(shuffle(v.relations))];
-        }
-        const itemdata = {
-          type: v.type,
-          num: v.num,
-          text: v.text,
-          options: v.options,
-          labels: v.labels,
-          corrects: v.corrects,
-          relations: v.relations,
-          answer: v.answer,
-          bobot: v.bobot,
-          soalItemId: v.id
-        };
-        items.push(itemdata);
-      });
-      const login = await PesertaLogin.create({
-        start: new Date(),
-        jadwalId: jadwal.id,
-        pesertaId: req.user.id,
-        peserta_tests: items
-      }, {
-        include: [PesertaTest]
-      });
-      const plogin = await PesertaLogin.findByPk(login.id, {
-        include: [
-          {
-            model: Jadwal,
-            attributes: [
-              'name',
-              'start',
-              'end',
-              'duration',
-              'show_score',
+      populateSoal(soals.rows)
+        .then(async (items) => {
+          const login = await PesertaLogin.create({
+            start: new Date(),
+            jadwalId: jadwal.id,
+            pesertaId: req.user.id,
+            peserta_tests: items
+          }, {
+            include: [PesertaTest]
+          });
+          const plogin = await PesertaLogin.findByPk(login.id, {
+            include: [
+              {
+                model: Jadwal,
+                attributes: [
+                  'name',
+                  'start',
+                  'end',
+                  'duration',
+                  'show_score',
+                ]
+              },
+              {
+                model: PesertaTest,
+                attributes: [
+                  'id',
+                  'type',
+                  'text',
+                  'options',
+                  'labels',
+                  'relations',
+                  'jawaban'
+                ]
+              }
+            ],
+            order: [
+              [PesertaTest, 'id', 'asc']
             ]
-          },
-          {
-            model: PesertaTest,
-            attributes: [
-              'id',
-              'type',
-              'text',
-              'options',
-              'labels',
-              'relations',
-              'jawaban'
-            ]
-          }
-        ],
-        order: [
-          [PesertaTest, 'id', 'asc']
-        ]
-      });
-      return res.json(plogin);
+          });
+          return res.json(plogin);
+        });
     } else {
       return sendStatus(res, 404, 'Soal tidak tersedia pada jadwal');
     }
@@ -211,13 +230,11 @@ module.exports.getTes = async (req, res) => {
   }
 }
 
-module.exports.saveJawaban = (req, res) => {
-  const data = req.body;
-  const { loginId } = req.params;
-  try {
-    Object.keys(data).forEach(i => {
-      const v = data[i];
-      PesertaTest.findByPk(i)
+const saveJawabanProc = (data, loginId) => {
+  return new Promise((resolve, reject) => {
+    const loop = (i) => {
+      const v = data[Object.keys(data)[i]];
+      PesertaTest.findByPk(Object.keys(data)[i])
         .then(test => {
           if (test) {
             let nilai = 0;
@@ -232,6 +249,9 @@ module.exports.saveJawaban = (req, res) => {
               if (test.type === 'PG' && nilai != test.bobot) {
                 nilai = 0;
               }
+              if (test.type === 'PGK' && nilai != test.bobot && (Object.keys(v.jawaban.corrects).filter(c => v.jawaban.corrects[c] === true).length === Object.keys(v.jawaban.corrects).length || Object.keys(v.jawaban.corrects).filter(c => v.jawaban.corrects[c] === false).length === Object.keys(v.jawaban.corrects).length)) {
+                nilai = 0;
+              }
             } else if (test.type === 'IS' || test.type === 'U') {
               const n = stringSimilarity.compareTwoStrings(stripTags(v.jawaban.answer).toLowerCase(), stripTags(test.answer).toLowerCase());
               nilai = n * test.bobot;
@@ -244,13 +264,32 @@ module.exports.saveJawaban = (req, res) => {
           }
         })
         .catch(error => {
-          return sendStatus(res, 500, 'Data gagal disimpan: ' + error);
+          reject(error.message);
         });
-    });
-    return sendStatus(res, 202, 'Data berhasil disimpan');
-  } catch (error) {
-    return sendStatus(res, 500, 'Data gagal disimpan: ' + error);
-  }
+
+      if (i < Object.keys(data).length) {
+        setTimeout(() => {
+          loop(i + 1);
+        }, 0);
+      } else {
+        resolve();
+        return;
+      }
+    }
+    loop(0);
+  });
+}
+
+module.exports.saveJawaban = (req, res) => {
+  const data = req.body;
+  const { loginId } = req.params;
+  saveJawabanProc(data, loginId)
+    .then(() => {
+      return sendStatus(res, 202, 'Data berhasil disimpan');
+    })
+    .catch(error => {
+      return sendStatus(res, 500, 'Data gagal disimpan: ' + error.message);
+    })
 }
 
 module.exports.stopUjian = (req, res) => {
@@ -263,7 +302,7 @@ module.exports.stopUjian = (req, res) => {
   return sendStatus(res, 202, 'Ujian berhasil dihentikan');
 }
 
-module.exports.getSelsai = async (req, res) => {
+module.exports.getSelesai = async (req, res) => {
   const { page, size, search } = req.query;
   const { limit, offset } = getPagination(page, size);
 

@@ -2,6 +2,7 @@ const { Op } = require("sequelize");
 const Peserta = require("../models/PesertaModel.js");
 const { getPagination, getPagingData } = require("../utils/Pagination.js");
 const { Worker } = require('worker_threads');
+const Sekolah = require("../models/SekolahModel.js");
 
 module.exports.getPesertas = async (req, res) => {
   const { page, size, search } = req.query;
@@ -137,28 +138,71 @@ module.exports.destroy = async (req, res) => {
   return sendStatus(res, 500, 'Data gagal dihapus');
 }
 
+const importProcess = (data, req) => {
+  return new Promise((resolve, eject) => {
+    const loop = async (i) => {
+      if (i == data.length) {
+        resolve(i);
+        return;
+      }
+      const v = data[i];
+      try {
+        if (v.username != '' && v.name != '' && v.password != '') {
+          const checkUsername = await Peserta.findOne({
+            where: {
+              username: {
+                [Op.eq]: v.username
+              }
+            }
+          });
+          if (checkUsername) {
+            if (checkUsername.sekolahId === req.user.sekolahId) {
+              await Peserta.update({ ...v, ...({ password_raw: v.password, token: null }) }, { where: { id: checkUsername.id } });
+            }
+          } else {
+            await Peserta.create({ ...v, ...({ password_raw: v.password, sekolahId: req.user.sekolahId }) }, {
+              include: [Sekolah]
+            });
+          }
+        }
+        setTimeout(() => {
+          loop(i + 1);
+        }, 0);
+      } catch (error) {
+        console.log(`Error: ${error.message}`);
+        eject(error.message);
+      }
+    }
+    let i = 0;
+    loop(i);
+  });
+}
+
 module.exports.importExcel = async (req, res) => {
   const arr = req.body;
   if (arr.length) {
-    const worker = new Worker('./workers/ImportPeserta.js', {
-      resourceLimits: {
-        maxOldGenerationSizeMb: 100
-      },
-      workerData: JSON.stringify({
-        arr, sekolahId: req.user.sekolahId
+    const arrb = arr.splice(0, arr.length / 2);
+    let c1, c2 = null;
+    importProcess(arr, req)
+      .then(c => {
+        c1 = c;
+        if (c2 !== null) {
+          return sendStatus(res, 201, (c1 + c2) + ' data berhasil diimpor');
+        }
       })
-    });
-    worker.on('message', (r) => {
-      const data = JSON.parse(r);
-      if (data.status === 'success') {
-        return sendStatus(res, 201, data.data + ' data berhasil diimpor');
-      } else {
-        return sendStatus(res, 500, 'Data gagal diimpor: ' + data.message);
-      }
-    })
-    worker.on('error', (error) => {
-      return sendStatus(res, 500, 'Data gagal diimpor: ' + error);
-    })
+      .catch(error => {
+        return sendStatus(res, 500, 'Data gagal diimpor: ' + error);
+      });
+    importProcess(arrb, req)
+      .then(c => {
+        c2 = c;
+        if (c1 !== null) {
+          return sendStatus(res, 201, (c1 + c2) + ' data berhasil diimpor');
+        }
+      })
+      .catch(error => {
+        return sendStatus(res, 500, 'Data gagal diimpor: ' + error);
+      });
   } else {
     return sendStatus(res, 200, 'Tidak ada data yang diimpor');
   }
