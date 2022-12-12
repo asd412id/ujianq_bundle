@@ -44,50 +44,74 @@ exports.UserRegister = async (req, res) => {
 
 }
 
-exports.UserLogin = async (req, res) => {
-  const { username, password } = req.body;
-  let datauser = null;
-  let typeUser = null;
-  let __token = null;
+const loginProcess = (req) => {
+  return new Promise((resolve, reject) => {
+    const process = async () => {
+      try {
+        const { username, password } = req.body;
+        let datauser = null;
+        let typeUser = null;
+        let __token = null;
+        if (isEmail(username)) {
+          datauser = await User.findOne({ where: { email: username } });
+          typeUser = 'admin';
+        } else {
+          datauser = await Peserta.findOne({ where: { username } });
+          typeUser = 'peserta';
+        }
+        if (!datauser) {
+          reject(null);
+          return;
+        }
 
-  if (isEmail(username)) {
-    datauser = await User.findOne({ where: { email: username } });
-    typeUser = 'admin';
-  } else {
-    datauser = await Peserta.findOne({ where: { username } });
-    typeUser = 'peserta';
-  }
-  if (!datauser) {
-    return errorLogin(res);
-  }
+        const passwordUser = compareSync(password, datauser.password);
+        if (!passwordUser) {
+          reject(null);
+          return;
+        }
 
-  const passwordUser = compareSync(password, datauser.password);
-  if (!passwordUser) {
-    return errorLogin(res);
-  }
+        if (typeUser === 'peserta') {
+          if (datauser?.token !== null) {
+            if (req.cookies._token) {
+              res.cookie('_token', 'null', { maxAge: -1 });
+            };
+            reject('Anda sudah login di tempat lain');
+            return;
+          }
+          __token = randomstring.generate(40);
+          datauser.update({ token: __token });
+        }
 
-  if (typeUser === 'peserta') {
-    if (datauser?.token !== null) {
-      if (req.cookies._token) {
-        res.cookie('_token', 'null', { maxAge: -1 });
-      };
-      return res.status(401).json({ message: 'Anda sudah login di tempat lain' });
+        const data = {
+          _id: datauser.id,
+          _type: typeUser,
+          _token: __token
+        };
+        const token = jwt.sign(data, process.env.JWT_SECRET);
+
+        resolve(token);
+      } catch (error) {
+        reject(error.message);
+      }
     }
-    __token = randomstring.generate(40);
-    datauser.update({ token: __token });
-  }
-
-  const data = {
-    _id: datauser.id,
-    _type: typeUser,
-    _token: __token
-  };
-  const token = jwt.sign(data, process.env.JWT_SECRET);
-
-  return res.status(200).cookie('_token', token, { maxAge: 24 * 60 * 60 * 1000 }).json({
-    message: 'Login Berhasil',
-    token: token
+    process();
   });
+}
+
+exports.UserLogin = async (req, res) => {
+
+  loginProcess(req).then(token => {
+    return res.status(200).cookie('_token', token, { maxAge: 24 * 60 * 60 * 1000 }).json({
+      message: 'Login Berhasil',
+      token: token
+    });
+  }).catch(msg => {
+    if (msg === null) {
+      return errorLogin(res);
+    }
+    return res.status(401).json({ message: msg });
+  });
+
 }
 
 exports.UserLogout = async (req, res) => {
