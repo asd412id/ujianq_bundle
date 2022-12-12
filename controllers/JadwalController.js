@@ -41,9 +41,6 @@ module.exports.getJadwals = async (req, res) => {
             'name',
             ['ruang', 'text']
           ],
-          order: [
-            ['name', 'asc']
-          ],
           through: {
             attributes: []
           }
@@ -79,7 +76,8 @@ module.exports.getJadwals = async (req, res) => {
       ],
       order: [
         ['active', 'desc'],
-        ['start', 'asc']
+        ['start', 'asc'],
+        [Peserta, 'name', 'asc']
       ],
       group: ['id'],
       distinct: true,
@@ -108,9 +106,6 @@ module.exports.getJadwals = async (req, res) => {
             'username',
             'name',
             ['ruang', 'text']
-          ],
-          order: [
-            ['name', 'asc']
           ],
           through: {
             attributes: []
@@ -153,7 +148,8 @@ module.exports.getJadwals = async (req, res) => {
       ],
       order: [
         ['active', 'desc'],
-        ['start', 'asc']
+        ['start', 'asc'],
+        [Peserta, 'name', 'asc']
       ],
       group: ['id'],
       distinct: true,
