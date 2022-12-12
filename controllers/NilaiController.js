@@ -36,11 +36,9 @@ module.exports.getNilais = async (req, res) => {
 const setNilaiProcess = (data) => {
   return new Promise(resolve => {
     const loop = (i) => {
-      PesertaTest.update({ nilai: data[Object.keys(data)[i]] }, {
-        where: {
-          id: Object.keys(data)[i]
-        }
-      });
+      PesertaTest.findByPk(Object.keys(data)[i]).then(ptest => {
+        ptest.update({ nilai: parseFloat(data[Object.keys(data)[i]]).toFixed(2) });
+      })
 
       if (i < Object.keys(data).length - 1) {
         setTimeout(() => {
@@ -67,8 +65,9 @@ module.exports.setNilai = (req, res) => {
         });
         return res.json({ message: 'Nilai berhasil diupdate' });
       });
+    } else {
+      return res.json({ message: 'Tidak ada perubahan nilai' });
     }
-    return res.json({ message: 'Tidak ada perubahan nilai' });
   } catch (error) {
     return res.status(500).json({ message: 'Tidak dapat memuat data: ' + error.message });
   }
