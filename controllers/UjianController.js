@@ -8,6 +8,7 @@ const Peserta = require("../models/PesertaModel.js");
 const PesertaTest = require("../models/PesertaTestModel.js");
 const SoalItem = require("../models/SoalItemModel.js");
 const Soal = require("../models/SoalModel.js");
+const { shuffle } = require('../utils/Helpers.js');
 const { getPagination, getPagingData } = require("../utils/Pagination.js");
 
 module.exports.getUjians = async (req, res) => {
