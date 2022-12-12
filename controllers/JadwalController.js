@@ -1,5 +1,5 @@
 const { existsSync, rmSync } = require("fs");
-const { col, fn, Op } = require("sequelize");
+const { col, fn, Op, literal } = require("sequelize");
 const Jadwal = require("../models/JadwalModel.js");
 const { getPagination, getPagingData } = require("../utils/Pagination.js");
 const Peserta = require("../models/PesertaModel.js");
@@ -348,7 +348,9 @@ module.exports.monitor = async (req, res) => {
               model: PesertaTest,
               required: false,
               attributes: [
-                [fn('sum', col('nilai')), 'total_nilai']
+                [fn('sum', col('nilai')), 'total_nilai'],
+                [fn('count', col('id')), 'total_soal'],
+                [literal('count(nullif(`jawaban`,``))'), 'dikerja']
               ]
             }
           ]
@@ -357,7 +359,7 @@ module.exports.monitor = async (req, res) => {
       order: [
         ['name', 'asc']
       ],
-      group: ['username']
+      group: ['id']
     });
     return res.json(pesertas);
   } catch (error) {
