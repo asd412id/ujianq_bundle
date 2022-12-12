@@ -351,7 +351,8 @@ module.exports.monitor = async (req, res) => {
                 [fn('sum', col('nilai')), 'total_nilai'],
                 [fn('count', col('username')), 'total_soal'],
                 [literal('count(jawaban)'), 'dikerja']
-              ]
+              ],
+              limit: 1
             }
           ]
         }
