@@ -33,23 +33,40 @@ module.exports.getNilais = async (req, res) => {
   }
 }
 
+const setNilaiProcess = (data) => {
+  return new Promise(resolve => {
+    const loop = (i) => {
+      PesertaTest.update({ nilai: data[Object.keys(data)[i]] }, {
+        where: {
+          id: Object.keys(data)[i]
+        }
+      });
+
+      if (i < data.length - 1) {
+        setTimeout(() => {
+          loop(i + 1);
+        }, 0)
+      } else {
+        resolve();
+        return;
+      }
+    }
+    loop(0);
+  });
+}
+
 module.exports.setNilai = (req, res) => {
   const data = req.body;
   try {
     if (Object.keys(data).length) {
-      Object.keys(data).forEach(k => {
-        PesertaTest.update({ nilai: data[k] }, {
+      setNilaiProcess(data).then(() => {
+        PesertaLogin.update({ checked: true }, {
           where: {
-            id: k
+            id: req.params.loginId
           }
         });
+        return res.json({ message: 'Nilai berhasil diupdate' });
       });
-      PesertaLogin.update({ checked: true }, {
-        where: {
-          id: req.params.loginId
-        }
-      });
-      return res.json({ message: 'Nilai berhasil diupdate' });
     }
     return res.json({ message: 'Tidak ada perubahan nilai' });
   } catch (error) {
