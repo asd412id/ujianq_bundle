@@ -46,7 +46,7 @@ exports.UserRegister = async (req, res) => {
 
 const loginProcess = (req) => {
   return new Promise((resolve, reject) => {
-    const process = async () => {
+    const processing = async () => {
       try {
         const { username, password } = req.body;
         let datauser = null;
@@ -94,7 +94,7 @@ const loginProcess = (req) => {
         reject(error.message);
       }
     }
-    process();
+    processing();
   });
 }
 
