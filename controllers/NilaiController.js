@@ -42,7 +42,7 @@ const setNilaiProcess = (data) => {
         }
       });
 
-      if (i < data.length - 1) {
+      if (i < Object.keys(data).length - 1) {
         setTimeout(() => {
           loop(i + 1);
         }, 0)
