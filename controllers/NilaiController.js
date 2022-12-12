@@ -91,7 +91,7 @@ module.exports.getNilaiByJadwal = async (req, res) => {
       ],
       group: ['id'],
       order: [
-        ['username', 'asc']
+        ['name', 'asc']
       ]
     });
     return res.json(data);
