@@ -42,7 +42,6 @@ module.exports.getJadwals = async (req, res) => {
             ['ruang', 'text']
           ],
           order: [
-            ['username', 'asc'],
             ['name', 'asc']
           ],
           through: {
@@ -111,7 +110,6 @@ module.exports.getJadwals = async (req, res) => {
             ['ruang', 'text']
           ],
           order: [
-            ['username', 'asc'],
             ['name', 'asc']
           ],
           through: {
