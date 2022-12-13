@@ -2,6 +2,7 @@ const { existsSync, rmSync } = require("fs");
 const { col, fn, Op } = require("sequelize");
 const Mapel = require("../models/MapelModel.js");
 const SoalItem = require("../models/SoalItemModel.js");
+const SoalKategori = require("../models/SoalKategoriModel.js");
 const Soal = require("../models/SoalModel.js");
 const User = require("../models/UserModel.js");
 const { getPagination, getPagingData } = require("../utils/Pagination.js");
@@ -107,7 +108,11 @@ module.exports.getSoal = async (req, res) => {
       where: {
         id: req.params.id,
         soalKategoryId: req.params.katid
-      }
+      },
+      include: [SoalKategori, SoalItem],
+      order: [
+        [SoalItem, 'num', 'asc']
+      ]
     });
     return res.status(200).json(data);
   } catch (error) {
