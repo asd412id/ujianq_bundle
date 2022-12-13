@@ -23,7 +23,11 @@ module.exports.updateSekolah = async (req, res) => {
     return res.status(406).json({ message: 'Data yang dikirim tidak lengkap' });
   }
 
-  const jopt = JSON.parse(opt);
+  const jopt = JSON.parse(opt) ?? {
+    opt: null,
+    address: null
+  };
+
   let kopName = '';
   const sekolah = await Sekolah.findByPk(req.user.sekolahId);
   if (!sekolah) {
