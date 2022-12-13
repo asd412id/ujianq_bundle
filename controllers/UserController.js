@@ -162,7 +162,9 @@ exports.updateAccount = async (req, res) => {
     if (update[0] > 0) {
       return res.status(201).json({
         message: 'Data berhasil disimpan',
-        data: await User.scope('hidePassword').findByPk(req.user.id)
+        data: await User.scope('hidePassword').findByPk(req.user.id, {
+          include: [Sekolah]
+        })
       });
     }
     return res.status(500).json({ message: 'Data gagal disimpan' });
