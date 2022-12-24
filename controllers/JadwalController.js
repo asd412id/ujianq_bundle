@@ -151,6 +151,8 @@ module.exports.getJadwals = async (req, res) => {
       order: [
         ['active', 'desc'],
         ['start', 'asc'],
+        ['name', 'asc'],
+        ['desc', 'asc'],
         [Peserta, 'name', 'asc']
       ],
       group: ['id'],
