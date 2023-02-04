@@ -18,6 +18,8 @@ const cookie = require('cookie-parser');
 require('dotenv').config();
 const fileUpload = require('express-fileupload');
 const db = require('./configs/Database.js');
+const Sekolah = require('./models/SekolahModel.js');
+const User = require('./models/UserModel.js');
 
 const PORT = process.env.APP_PORT;
 
@@ -33,15 +35,6 @@ app.use(fileUpload());
 
 const _API = '/api/v1';
 
-app.post(`${_API}/setupdb`, async (req, res) => {
-  try {
-    await db.sync();
-    return res.json({ message: 'Pengaturan database selesai' });
-  } catch (error) {
-    return res.json({ message: 'Pengaturan database gagal: ' + error.message });
-  }
-});
-
 app.use(_API, UserRoutes);
 app.use(`${_API}/sekolah`, SekolahRoutes);
 app.use(`${_API}/mapels`, MapelRoutes);
@@ -55,6 +48,29 @@ app.use(`${_API}/jadwals`, JadwalRoutes);
 app.use(`${_API}/nilais`, NilaiRoutes);
 app.use(`${_API}/ujian`, UjianRoutes);
 app.use(`${_API}/search`, SearchRoutes);
+
+(async () => {
+  try {
+    await db.sync();
+    const sekolah = await Sekolah.count();
+    if (!sekolah) {
+      const data = {
+        name: 'UPTD SMPN 39 Sinjai',
+        users: [{
+          name: 'Operator',
+          email: 'admin@websekolah.sch.id',
+          password: 'password'
+        }]
+      };
+      await Sekolah.create(data, {
+        include: [User]
+      });
+      console.log("User admin created");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+})()
 
 if (process.env.APP_ENV !== 'production') {
   app.listen(PORT, () => {

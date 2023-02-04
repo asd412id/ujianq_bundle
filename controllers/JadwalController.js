@@ -76,7 +76,7 @@ module.exports.getJadwals = async (req, res) => {
       ],
       order: [
         ['active', 'desc'],
-        ['start', 'asc'],
+        ['start', 'desc'],
         ['name', 'asc'],
         ['desc', 'asc'],
         [Peserta, 'name', 'asc']
@@ -150,7 +150,7 @@ module.exports.getJadwals = async (req, res) => {
       ],
       order: [
         ['active', 'desc'],
-        ['start', 'asc'],
+        ['start', 'desc'],
         ['name', 'asc'],
         ['desc', 'asc'],
         [Peserta, 'name', 'asc']
