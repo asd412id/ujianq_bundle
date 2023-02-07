@@ -254,6 +254,19 @@ module.exports.resetLogin = async (req, res) => {
   }
 }
 
+module.exports.resetAll = async (req, res) => {
+  try {
+    await Peserta.update({ token: null }, {
+      where: {
+        sekolahId: req.user.sekolahId
+      }
+    });
+    return sendStatus(res, 202, 'Semua data login berhasil direset');
+  } catch (error) {
+    return sendStatus(res, 500, 'Gagal mereset data: ' + error.message);
+  }
+}
+
 const sendStatus = (res, status, text) => {
   return res.status(status).json({ message: text });
 }

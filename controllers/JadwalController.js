@@ -399,6 +399,44 @@ module.exports.resetUjian = async (req, res) => {
   }
 }
 
+module.exports.resetLogin = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const pesertas = [...(await Peserta.findAll({
+      where: {
+        sekolahId: req.user.sekolahId
+      },
+      attributes: ['id'],
+      group: ['id'],
+      include: [
+        {
+          model: Jadwal,
+          required: true,
+          where: {
+            id: id
+          },
+          through: {
+            attributes: []
+          }
+        }
+      ],
+      raw: true
+    }))].map(e => e.id);
+
+    await Peserta.update({ token: null }, {
+      where: {
+        id: {
+          [Op.in]: pesertas
+        },
+        sekolahId: req.user.sekolahId
+      }
+    });
+    return sendStatus(res, 202, 'Data login berhasil direset');
+  } catch (error) {
+    return sendStatus(res, 500, 'Gagal mereset data: ' + error.message);
+  }
+}
+
 const sendStatus = (res, status, text) => {
   return res.status(status).json({ message: text });
 }
