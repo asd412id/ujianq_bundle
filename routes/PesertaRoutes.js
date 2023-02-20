@@ -14,6 +14,6 @@ router.patch('/reset', auth, role(['OPERATOR']), resetAll);
 router.get('/:id', auth, role(['OPERATOR']), getPeserta);
 router.put('/:id', auth, role(['OPERATOR']), store);
 router.delete('/:id', auth, role(['OPERATOR']), destroy);
-router.patch('/:id/reset', auth, role(['OPERATOR']), resetLogin);
+router.patch('/:id/reset', auth, role(['OPERATOR', 'PENILAI']), resetLogin);
 
 module.exports = router;
