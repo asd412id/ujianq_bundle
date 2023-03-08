@@ -55,7 +55,7 @@ app.use(`${_API}/search`, SearchRoutes);
     const sekolah = await Sekolah.count();
     if (!sekolah) {
       const data = {
-        name: 'UPTD SMPN 39 Sinjai',
+        name: 'UPTD SMP NEGERI XX',
         users: [{
           name: 'Operator',
           email: 'admin@websekolah.sch.id',
