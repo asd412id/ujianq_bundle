@@ -303,6 +303,9 @@ module.exports.getRuangs = async (req, res) => {
           }
         }
       ],
+      order: [
+        ['ruang', 'asc']
+      ],
       raw: true
     }))].map(e => e.ruang);
     return res.json(ruangs);
