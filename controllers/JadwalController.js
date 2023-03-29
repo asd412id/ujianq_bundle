@@ -189,6 +189,8 @@ module.exports.store = async (req, res) => {
   const s = soals.map(v => v.id);
   const r = ruangs.map(v => v.text);
   const u = penilais.map(v => v.id);
+  const strt = new Date(start);
+  const ed = new Date(end);
 
   const sCount = await SoalItem.count({
     attributes: ['id'],
@@ -221,8 +223,8 @@ module.exports.store = async (req, res) => {
       await Jadwal.update({
         name,
         desc,
-        start,
-        end,
+        start: strt,
+        end: ed,
         duration,
         soal_count: (soal_count <= sCount ? soal_count : sCount),
         shuffle,
@@ -246,8 +248,8 @@ module.exports.store = async (req, res) => {
       const jadwal = await Jadwal.create({
         name,
         desc,
-        start,
-        end,
+        start: strt,
+        end: ed,
         duration,
         soal_count: (soal_count <= sCount ? soal_count : sCount),
         shuffle,
@@ -300,6 +302,9 @@ module.exports.getRuangs = async (req, res) => {
             attributes: []
           }
         }
+      ],
+      order: [
+        ['ruang', 'asc']
       ],
       raw: true
     }))].map(e => e.ruang);

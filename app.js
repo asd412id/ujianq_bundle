@@ -33,6 +33,8 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb', parameterLimit: 50000 }));
 app.use(fileUpload());
 
+app.use(express.static('client'));
+
 const _API = '/api/v1';
 
 app.use(_API, UserRoutes);
@@ -49,13 +51,18 @@ app.use(`${_API}/nilais`, NilaiRoutes);
 app.use(`${_API}/ujian`, UjianRoutes);
 app.use(`${_API}/search`, SearchRoutes);
 
+app.get('*', (req, res) => {
+  res.sendFile('client/index.html', { root: '.' });
+});
+
+
 (async () => {
   try {
     await db.sync();
     const sekolah = await Sekolah.count();
     if (!sekolah) {
       const data = {
-        name: 'UPTD SMPN 39 Sinjai',
+        name: 'UPTD NAMA SEKOLAH',
         users: [{
           name: 'Operator',
           email: 'admin@websekolah.sch.id',
@@ -72,10 +79,6 @@ app.use(`${_API}/search`, SearchRoutes);
   }
 })()
 
-if (process.env.APP_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`Listening Port ` + PORT);
-  });
-} else {
-  app.listen();
-}
+app.listen(80,()=>{
+  console.log('Aplikasi Ujian Ready!!!');
+});

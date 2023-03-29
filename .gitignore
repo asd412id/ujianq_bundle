@@ -1,2 +1,5 @@
+/db
 /node_modules
+/share
+*.zip
 .env
