@@ -49,7 +49,9 @@ const User = db.define('users', {
         exclude: ['password']
       }
     }
-  }
+  },
+  charset: 'utf8mb4',
+  collate: 'utf8mb4_unicode_ci'
 });
 
 Sekolah.hasMany(User, {

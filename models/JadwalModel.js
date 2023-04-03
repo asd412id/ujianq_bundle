@@ -42,6 +42,9 @@ const Jadwal = db.define('jadwals', {
   active: {
     type: DataTypes.BOOLEAN
   }
+}, {
+  charset: 'utf8mb4',
+  collate: 'utf8mb4_unicode_ci'
 });
 
 Jadwal.hasMany(PesertaLogin, {

@@ -84,6 +84,9 @@ const SoalItem = db.define('soal_items', {
   answer: {
     type: DataTypes.TEXT
   }
+}, {
+  charset: 'utf8mb4',
+  collate: 'utf8mb4_unicode_ci'
 });
 
 SoalItem.hasMany(PesertaTest);
