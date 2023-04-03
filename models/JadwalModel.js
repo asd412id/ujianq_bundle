@@ -51,7 +51,7 @@ Jadwal.hasMany(PesertaLogin, {
   onDelete: 'CASCADE'
 });
 PesertaLogin.belongsTo(Jadwal);
-Jadwal.belongsToMany(Soal, { through: 'Jadwal_Soal', timestamps: false });
-Soal.belongsToMany(Jadwal, { through: 'Jadwal_Soal', timestamps: false });
+Jadwal.belongsToMany(Soal, { through: 'jadwal_soal', timestamps: false });
+Soal.belongsToMany(Jadwal, { through: 'jadwal_soal', timestamps: false });
 
 module.exports = Jadwal;

@@ -28,7 +28,7 @@ SoalKategori.hasMany(Soal, {
   onDelete: 'CASCADE'
 });
 Soal.belongsTo(SoalKategori);
-SoalKategori.belongsToMany(JadwalKategori, { as: 'jadwal_kategories', through: 'JadwalKategori_SoalKategori', timestamps: false });
-JadwalKategori.belongsToMany(SoalKategori, { as: 'soal_kategories', through: 'JadwalKategori_SoalKategori', timestamps: false });
+SoalKategori.belongsToMany(JadwalKategori, { as: 'jadwal_kategories', through: 'jadwalKategori_soalKategori', timestamps: false });
+JadwalKategori.belongsToMany(SoalKategori, { as: 'soal_kategories', through: 'jadwalKategori_soalKategori', timestamps: false });
 
 module.exports = SoalKategori;

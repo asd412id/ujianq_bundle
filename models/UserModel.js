@@ -59,10 +59,10 @@ Sekolah.hasMany(User, {
 });
 User.hasMany(Soal);
 Soal.belongsTo(User);
-User.belongsToMany(Mapel, { through: 'User_Mapel', timestamps: false });
-Mapel.belongsToMany(User, { through: 'User_Mapel', timestamps: false });
+User.belongsToMany(Mapel, { through: 'user_mapel', timestamps: false });
+Mapel.belongsToMany(User, { through: 'user_mapel', timestamps: false });
 User.belongsTo(Sekolah);
-User.belongsToMany(Jadwal, { through: 'User_Jadwal', timestamps: false });
-Jadwal.belongsToMany(User, { through: 'User_Jadwal', timestamps: false });
+User.belongsToMany(Jadwal, { through: 'user_jadwal', timestamps: false });
+Jadwal.belongsToMany(User, { through: 'user_jadwal', timestamps: false });
 
 module.exports = User;
