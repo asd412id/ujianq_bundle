@@ -201,6 +201,9 @@ module.exports.getRuangs = async (req, res) => {
       },
       attributes: ['ruang'],
       group: ['ruang'],
+      order: [
+        ['ruang', 'asc']
+      ],
       raw: true
     }))].map(e => e.ruang);
     return res.json(ruangs);
@@ -218,7 +221,11 @@ module.exports.getPesertasByRuang = async (req, res) => {
           [Op.eq]: ruang
         },
         sekolahId: req.user.sekolahId
-      }
+      },
+      order: [
+        ['username', 'asc'],
+        ['name', 'asc'],
+      ]
     });
     return res.json(data);
   } catch (error) {
