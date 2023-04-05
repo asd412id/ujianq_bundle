@@ -181,24 +181,9 @@ const importProcess = (data, req) => {
 module.exports.importExcel = async (req, res) => {
   const arr = req.body;
   if (arr.length) {
-    const arrb = arr.splice(0, arr.length / 2);
-    let c1, c2 = null;
     importProcess(arr, req)
       .then(c => {
-        c1 = c;
-        if (c2 !== null) {
-          return sendStatus(res, 201, (c1 + c2) + ' data berhasil diimpor');
-        }
-      })
-      .catch(error => {
-        return sendStatus(res, 500, 'Data gagal diimpor: ' + error);
-      });
-    importProcess(arrb, req)
-      .then(c => {
-        c2 = c;
-        if (c1 !== null) {
-          return sendStatus(res, 201, (c1 + c2) + ' data berhasil diimpor');
-        }
+        return sendStatus(res, 201, c + ' data berhasil diimpor');
       })
       .catch(error => {
         return sendStatus(res, 500, 'Data gagal diimpor: ' + error);
@@ -216,6 +201,9 @@ module.exports.getRuangs = async (req, res) => {
       },
       attributes: ['ruang'],
       group: ['ruang'],
+      order: [
+        ['ruang', 'asc']
+      ],
       raw: true
     }))].map(e => e.ruang);
     return res.json(ruangs);
@@ -233,7 +221,11 @@ module.exports.getPesertasByRuang = async (req, res) => {
           [Op.eq]: ruang
         },
         sekolahId: req.user.sekolahId
-      }
+      },
+      order: [
+        ['username', 'asc'],
+        ['name', 'asc'],
+      ]
     });
     return res.json(data);
   } catch (error) {

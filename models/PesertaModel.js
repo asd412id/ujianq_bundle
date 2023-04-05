@@ -52,11 +52,13 @@ const Peserta = db.define('pesertas', {
         exclude: ['password']
       }
     }
-  }
+  },
+  charset: 'utf8mb4',
+  collate: 'utf8mb4_unicode_ci'
 });
 
-Peserta.belongsToMany(Jadwal, { through: 'Jadwal_Peserta', timestamps: false });
-Jadwal.belongsToMany(Peserta, { through: 'Jadwal_Peserta', timestamps: false });
+Peserta.belongsToMany(Jadwal, { through: 'jadwal_peserta', timestamps: false });
+Jadwal.belongsToMany(Peserta, { through: 'jadwal_peserta', timestamps: false });
 Peserta.hasMany(PesertaLogin, {
   onDelete: 'CASCADE'
 });

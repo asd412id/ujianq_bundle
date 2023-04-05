@@ -61,7 +61,7 @@ module.exports.updateSekolah = async (req, res) => {
       mkdirSync(`${process.env.APP_ASSETS_PATH}/assets/kop`);
     }
 
-    kopName = `/assets/kop/${kop.md5}${ext}`;
+    kopName = `/assets/kop/${kop.md5}-${Date.now()}${ext}`;
     kop.mv(`${process.env.APP_ASSETS_PATH}${kopName}`);
     jopt['kop'] = kopName;
   }

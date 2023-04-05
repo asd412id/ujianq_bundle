@@ -19,13 +19,16 @@ const SoalKategori = db.define('soal_kategories', {
   desc: {
     type: DataTypes.TEXT
   }
+}, {
+  charset: 'utf8mb4',
+  collate: 'utf8mb4_unicode_ci'
 });
 
 SoalKategori.hasMany(Soal, {
   onDelete: 'CASCADE'
 });
 Soal.belongsTo(SoalKategori);
-SoalKategori.belongsToMany(JadwalKategori, { as: 'jadwal_kategories', through: 'JadwalKategori_SoalKategori', timestamps: false });
-JadwalKategori.belongsToMany(SoalKategori, { as: 'soal_kategories', through: 'JadwalKategori_SoalKategori', timestamps: false });
+SoalKategori.belongsToMany(JadwalKategori, { as: 'jadwal_kategories', through: 'jadwalkategori_soalkategori', timestamps: false });
+JadwalKategori.belongsToMany(SoalKategori, { as: 'soal_kategories', through: 'jadwalkategori_soalkategori', timestamps: false });
 
 module.exports = SoalKategori;

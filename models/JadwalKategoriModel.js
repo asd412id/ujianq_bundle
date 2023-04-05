@@ -18,6 +18,9 @@ const JadwalKategori = db.define('jadwal_kategories', {
   desc: {
     type: DataTypes.TEXT
   }
+}, {
+  charset: 'utf8mb4',
+  collate: 'utf8mb4_unicode_ci'
 });
 
 JadwalKategori.hasMany(Jadwal, {

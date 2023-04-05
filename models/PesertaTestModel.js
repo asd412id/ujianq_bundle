@@ -77,6 +77,9 @@ const PesertaTest = db.define('peserta_tests', {
       this.setDataValue('jawaban', JSON.stringify(value));
     }
   }
+}, {
+  charset: 'utf8mb4',
+  collate: 'utf8mb4_unicode_ci'
 });
 
 module.exports = PesertaTest;

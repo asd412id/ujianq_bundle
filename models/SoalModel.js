@@ -18,6 +18,9 @@ const Soal = db.define('soals', {
   desc: {
     type: DataTypes.TEXT
   }
+}, {
+  charset: 'utf8mb4',
+  collate: 'utf8mb4_unicode_ci'
 });
 
 Soal.hasMany(SoalItem, {

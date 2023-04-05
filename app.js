@@ -21,7 +21,7 @@ const db = require('./configs/Database.js');
 const Sekolah = require('./models/SekolahModel.js');
 const User = require('./models/UserModel.js');
 
-const PORT = process.env.APP_PORT;
+const PORT = process.env.APP_PORT || 80;
 
 const app = express();
 app.use(cors({
@@ -79,6 +79,6 @@ app.get('*', (req, res) => {
   }
 })()
 
-app.listen(80,()=>{
+app.listen(PORT, () => {
   console.log('Aplikasi Ujian Ready!!!');
 });

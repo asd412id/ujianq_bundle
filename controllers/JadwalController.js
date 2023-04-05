@@ -79,7 +79,7 @@ module.exports.getJadwals = async (req, res) => {
         ['start', 'desc'],
         ['name', 'asc'],
         ['desc', 'asc'],
-        [Peserta, 'name', 'asc']
+        [Peserta, 'username', 'asc']
       ],
       group: ['id'],
       distinct: true,
@@ -153,7 +153,7 @@ module.exports.getJadwals = async (req, res) => {
         ['start', 'desc'],
         ['name', 'asc'],
         ['desc', 'asc'],
-        [Peserta, 'name', 'asc']
+        [Peserta, 'username', 'asc']
       ],
       group: ['id'],
       distinct: true,
@@ -366,6 +366,7 @@ module.exports.monitor = async (req, res) => {
         }
       ],
       order: [
+        ['username', 'asc'],
         ['name', 'asc']
       ],
       group: ['username']
