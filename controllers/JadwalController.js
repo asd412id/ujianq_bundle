@@ -366,6 +366,7 @@ module.exports.monitor = async (req, res) => {
         }
       ],
       order: [
+        ['username', 'asc'],
         ['name', 'asc']
       ],
       group: ['username']
