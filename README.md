@@ -6,4 +6,4 @@
 4. Run _npm run dev_ to start the app
 
 ## Backend Repo
-You can clone the Frontend end repo from [**this url**](https://github.com/asd412id/akm_fe_react).
+You can clone the Frontend repo from [**this url**](https://github.com/asd412id/akm_fe_react).
