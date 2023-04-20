@@ -128,6 +128,48 @@ module.exports.store = async (req, res) => {
   }
 }
 
+const importProcess = (soals, soalId) => {
+  return new Promise((resolve, reject) => {
+    const loop = async (i) => {
+      if (i === soals.length) {
+        resolve(i);
+      }
+
+      try {
+        const { type, num, text, bobot, options, corrects, relations, labels, assets, shuffle, answer } = soals[i];
+        const newAssets = saveAssets(soalId, assets);
+        await SoalItem.create({ type, num, text, bobot, options, corrects, relations, labels, assets: newAssets, shuffle, answer, soalId });
+        setTimeout(() => {
+          loop(i + 1);
+        }, 0);
+      } catch (error) {
+        reject(error.message);
+      }
+    }
+    loop(0);
+  });
+}
+
+module.exports.importExcel = async (req, res) => {
+  const soals = req.body;
+  try {
+    if (existsSync(`${process.env.APP_ASSETS_PATH}/assets/${req.params.soalid}`)) {
+      rmSync(`${process.env.APP_ASSETS_PATH}/assets/${req.params.soalid}`, { recursive: true, force: true });
+    }
+
+    await SoalItem.destroy({
+      where: {
+        soalId: req.params.soalid
+      }
+    });
+
+    const count = await importProcess(soals, req.params.soalid);
+    return sendStatus(res, 201, `${count} soal berhasil diimpor`);
+  } catch (error) {
+    return sendStatus(res, 500, 'Data gagal disimpan: ' + error.message);
+  }
+}
+
 module.exports.destroy = async (req, res) => {
   try {
     const data = await SoalItem.findByPk(req.params.id);
