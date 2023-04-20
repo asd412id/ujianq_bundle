@@ -121,7 +121,7 @@ module.exports.getSoal = async (req, res) => {
 }
 
 module.exports.store = async (req, res) => {
-  const { name, desc, mapelId, userId } = req.body;
+  let { name, desc, mapelId, userId } = req.body;
   if (!name || !mapelId) {
     return sendStatus(res, 406, 'Data yang dikirim tidak lengkap');
   }
@@ -136,7 +136,7 @@ module.exports.store = async (req, res) => {
           }
         });
       } else {
-        await Soal.update({ name, desc, mapelId: mapelId, userId: userId }, {
+        await Soal.update({ name, desc, mapelId: mapelId, userId: (userId !== '' ? userId : null) }, {
           where: {
             id: req.params.id,
             soalKategoryId: req.params.katid
@@ -147,12 +147,12 @@ module.exports.store = async (req, res) => {
       if (req.user.role !== 'OPERATOR') {
         await Soal.create({ name, desc, mapelId: mapelId, userId: req.user.id, soalKategoryId: req.params.katid });
       } else {
-        await Soal.create({ name, desc, mapelId: mapelId, userId: userId, soalKategoryId: req.params.katid });
+        await Soal.create({ name, desc, mapelId: mapelId, userId: (userId !== '' ? userId : null), soalKategoryId: req.params.katid });
       }
     }
     return sendStatus(res, 201, 'Data berhasil disimpan');
   } catch (error) {
-    return sendStatus(res, 500, 'Data gagal disimpan');
+    return sendStatus(res, 500, 'Data gagal disimpan: ' + error.message);
   }
 }
 
