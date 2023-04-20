@@ -34,7 +34,7 @@ const auth = async (req, res, next) => {
         }
       }
 
-      res.cookie('_token', token, { maxAge: 24 * 60 * 60 * 1000 });
+      res.cookie('_token', token, { maxAge: ((process.env.LOGIN_TIMEOUT || 24 * 60) * 60 * 1000), secure: true, httpOnly: true });
 
       req.user = user;
     } catch (error) {

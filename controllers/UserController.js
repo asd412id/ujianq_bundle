@@ -100,7 +100,7 @@ const loginProcess = (req) => {
 
 exports.UserLogin = async (req, res) => {
   loginProcess(req).then(token => {
-    return res.status(200).cookie('_token', token, { maxAge: 24 * 60 * 60 * 1000 }).json({
+    return res.status(200).cookie('_token', token, { maxAge: ((process.env.LOGIN_TIMEOUT || 24 * 60) * 60 * 1000), secure: true, httpOnly: true }).json({
       message: 'Login Berhasil',
       token: token
     });
