@@ -11,37 +11,49 @@ const randomstring = require('randomstring');
 dotenv.config();
 const { compareSync } = bcryptjs;
 
-exports.UserRegister = async (req, res) => {
-  const { sekolah, name, email, password } = req.body;
-  if (!name || !email) {
-    return res.status(406).json({ message: 'Data tidak lengkap' });
-  }
+const registerProcess = (req) => {
+  return new Promise((resolve, reject) => {
+    const processing = async () => {
+      const { sekolah, name, email, password } = req.body;
+      if (!name || !email || !sekolah || !password) {
+        return reject({ code: 406, message: 'Data tidak lengkap' });
+      }
 
-  const datauser = await User.findOne({ where: { email } });
-  if (datauser) {
-    return res.status(406).json({ message: `Email "${email}" sudah terdaftar sebelumnya` });
-  }
+      const datauser = await User.findOne({ where: { email } });
+      if (datauser) {
+        return reject({ code: 406, message: `Email "${email}" sudah terdaftar sebelumnya` });
+      }
 
-  const data = {
-    name: sekolah,
-    users: [{
-      name: name,
-      email: email,
-      password: password
-    }]
-  };
-  try {
-    const insert = Sekolah.create(data, {
-      include: [User]
-    });
-    if (!insert) {
-      return res.status(500).json({ message: 'Gagal menyimpan data' });
+      const data = {
+        name: sekolah,
+        users: [{
+          name: name,
+          email: email,
+          password: password
+        }]
+      };
+      try {
+        const insert = Sekolah.create(data, {
+          include: [User]
+        });
+        if (!insert) {
+          return reject({ code: 500, message: 'Gagal menyimpan data' });
+        }
+        return resolve('Data berhasil disimpan');
+      } catch (error) {
+        return reject({ code: 500, message: 'Gagal menyimpan data: ' + error.message });
+      }
     }
-    return res.status(201).json({ message: 'Data berhasil disimpan' });
-  } catch (error) {
-    return res.status(500).json({ message: 'Gagal menyimpan data' });
-  }
+    setTimeout(processing, 0);
+  });
+}
 
+exports.UserRegister = async (req, res) => {
+  registerProcess(req).then(msg => {
+    return res.status(201).json({ message: msg });
+  }).catch(err => {
+    return res.status(err.code).json({ message: err.message });
+  });
 }
 
 const loginProcess = (req) => {
@@ -94,7 +106,7 @@ const loginProcess = (req) => {
         reject(error.message);
       }
     }
-    processing();
+    setTimeout(processing, 0);
   });
 }
 
