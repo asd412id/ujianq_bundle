@@ -49,7 +49,9 @@ const setNilaiProcess = (data) => {
         return;
       }
     }
-    loop(0);
+    setTimeout(() => {
+      loop(0);
+    }, 0);
   });
 }
 

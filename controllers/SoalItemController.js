@@ -146,7 +146,9 @@ const importProcess = (soals, soalId) => {
         reject(error.message);
       }
     }
-    loop(0);
+    setTimeout(() => {
+      loop(0);
+    }, 0);
   });
 }
 
