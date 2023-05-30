@@ -123,7 +123,16 @@ module.exports.store = async (req, res) => {
 module.exports.destroy = async (req, res) => {
   let destroy = null;
   if (req.params.id === 'all') {
-    destroy = await Peserta.destroy({ where: {} });
+    const ruang = req.query?.ruang;
+    if (ruang) {
+      destroy = await Peserta.destroy({
+        where: {
+          ruang: ruang
+        }
+      });
+    } else {
+      destroy = await Peserta.destroy({ where: {} });
+    }
   } else {
     destroy = await Peserta.destroy({
       where: {
